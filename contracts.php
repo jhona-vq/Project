@@ -219,7 +219,7 @@ saveFiles(
 
 $conn->query("
 UPDATE contracts
-SET status='Terminated'
+SET status='Active'
 WHERE end_date < CURDATE()
 AND status='Active'
 ");
