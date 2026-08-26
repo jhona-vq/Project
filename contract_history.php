@@ -184,9 +184,6 @@ $badge = "secondary";
 if($status=="active"){
     $badge="success";
 }
-elseif($status=="expired"){
-    $badge="danger";
-}
 elseif($status=="renewed"){
     $badge="primary";
 }
