@@ -88,11 +88,6 @@ value="<?= $row['position_title']; ?>">
 Active
 </option>
 
-<option value="Expired"
-<?= ($row['status']=="Expired") ? "selected" : ""; ?>>
-Expired
-</option>
-
 <option value="Renewed"
 <?= ($row['status']=="Renewed") ? "selected" : ""; ?>>
 Renewed
