@@ -493,7 +493,7 @@ $activeRow = $active->fetch_assoc();
 
 <div class="col-md-3">
 <div class="card p-3">
-<h6>Terminating 90 Days</h6>
+<h6>Termination After 90 Days</h6>
 <?php
 $q90 = $conn->query("
 SELECT COUNT(*) as total
@@ -510,7 +510,7 @@ $r90 = $q90->fetch_assoc();
 
 <div class="col-md-3">
 <div class="card p-3">
-<h6>Terminating 60 Days</h6>
+<h6>Termination After 60 Days</h6>
 <?php
 $q60 = $conn->query("
 SELECT COUNT(*) as total
@@ -527,7 +527,7 @@ $r60 = $q60->fetch_assoc();
 
 <div class="col-md-3">
 <div class="card p-3">
-<h6>Terminating 30 Days</h6>
+<h6>Termination After 30 Days</h6>
 <?php
 $q30 = $conn->query("
 SELECT COUNT(*) as total
