@@ -1,0 +1,89 @@
+/* DARK MODE */
+
+.dark-mode{
+    background:#0f172a !important;
+    color:#fff !important;
+}
+
+/* Main Content */
+.dark-mode .page-content,
+.dark-mode .main-content,
+.dark-mode .content,
+.dark-mode .wrapper{
+    background:#0f172a !important;
+    color:#fff !important;
+}
+
+/* Cards */
+.dark-mode .card{
+    background:#1e293b !important;
+    color:#fff !important;
+    border:1px solid #334155 !important;
+}
+
+/* Card Header */
+.dark-mode .card-header{
+    background:#1e293b !important;
+    color:#fff !important;
+    border-bottom:1px solid #334155 !important;
+}
+
+/* Topbar */
+.dark-mode .topbar{
+    background:#1e293b !important;
+    color:#fff !important;
+}
+
+/* Tables */
+.dark-mode table{
+    color:#fff !important;
+}
+
+.dark-mode .table{
+    color:#fff !important;
+}
+
+.dark-mode .table td,
+.dark-mode .table th{
+    background:#1e293b !important;
+    color:#fff !important;
+    border-color:#334155 !important;
+}
+
+/* Forms */
+.dark-mode .form-control,
+.dark-mode .form-select,
+.dark-mode select,
+.dark-mode input{
+    background:#0f172a !important;
+    color:#fff !important;
+    border:1px solid #334155 !important;
+}
+
+/* Modal */
+.dark-mode .modal-content{
+    background:#1e293b !important;
+    color:#fff !important;
+}
+
+.dark-mode .modal-header{
+    border-bottom:1px solid #334155 !important;
+}
+
+.dark-mode .modal-footer{
+    border-top:1px solid #334155 !important;
+}
+
+/* Text */
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6,
+.dark-mode p,
+.dark-mode label,
+.dark-mode span,
+.dark-mode small{
+    color:#fff !important;
+}
