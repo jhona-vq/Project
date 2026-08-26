@@ -44,7 +44,7 @@ $total_pages = ceil($totalTerminated / $limit);
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Expired Personnel Report | JOPMIS</title>
+<title>Terminated Personnel Report | JOPMIS</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
@@ -179,7 +179,7 @@ Back
 <th>Employee Name</th>
 <th>Position</th>
 <th>Contract End Date</th>
-<th>Days Expired</th>
+<th>Days Terminated</th>
 <th>Status</th>
 </tr>
 
