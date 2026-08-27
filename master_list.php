@@ -2,13 +2,21 @@
 include "auth.php";
 include "config.php";
 
+/* ==========================================
+    GET ALL PERSONNEL
+========================================= */
+
 $result = $conn->query("
 SELECT *
 FROM personnel
-ORDER BY last_name ASC
+ORDER BY last_name ASC, first_name ASC
 ");
 
-$totalPersonnel = $result->num_rows;
+$totalPersonnel = 0;
+
+if ($result) {
+    $totalPersonnel = $result->num_rows;
+}
 ?>
 
 <!DOCTYPE html>
@@ -145,7 +153,6 @@ placeholder="Search Personnel...">
 <th>Contact</th>
 <th>Email</th>
 <th>Status</th>
-<th width="120">Action</th>
 </tr>
 </thead>
 
@@ -158,9 +165,17 @@ placeholder="Search Personnel...">
 <td><?= $row['employee_id']; ?></td>
 
 <td class="name-text">
-<?= $row['last_name']; ?>,
-<?= $row['first_name']; ?>
-<?= $row['middle_name']; ?>
+
+<a
+    href="contract_history.php?employee_id=<?= urlencode($row['employee-id']); ?>"
+    class="text-decoration-none fw-bold">
+    
+    <?= htmlspecialchars($row['last_name']); ?>,
+    <?= htmlspecialchars($row['first_name']); ?>
+    <?= htmlspecialchars($row['middle_name']); ?>
+
+</a>
+    
 </td>
 
 <td><?= $row['position_title']; ?></td>
@@ -175,18 +190,6 @@ placeholder="Search Personnel...">
 <span class="badge badge-status">
 <?= $row['employment_status']; ?>
 </span>
-</td>
-
-<td>
-
-<a href="contract_history.php?id=<?= $row['employee_id']; ?>"
-class="btn btn-primary btn-sm">
-
-<i class="fas fa-history"></i>
-View History
-
-</a>
-
 </td>
 
 </tr>
