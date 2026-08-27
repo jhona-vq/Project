@@ -2,14 +2,51 @@
 include "auth.php";
 include "config.php";
 
-$result = $conn->query("
-SELECT *
+/*==============================================
+    COUNT UNIQUE ACTIVE PERSONNEL
+============================================= */
+
+$countResult = $conn->query("
+SELECT COUNT (DISTINCT employee_id) AS total
 FROM contracts
 WHERE status='Active'
-ORDER BY employee_name ASC
+AND end_date >= CURDATE()
 ");
 
-$totalActive = $result->num_rows;
+$totalActive = 0;
+
+if ($countResult) {
+    $totalActive = $countResult->fetch_assoc()['total'];
+}
+
+/* =============================================
+    GET ONE ACTIVE CONTRACT PER EMPLOYEE
+    SHOW LATEST ACTIVE CONTRACT
+============================================= */
+
+$result = $conn->query("
+    SELECT C.*
+    FROM contracts c
+
+    INNER JOIN (
+        SELECT
+            employee_id,
+            MAX(end_date) AS latest_end_date
+        FROM contracts
+        WHERE status='Active'
+        AND end_date >= CURDATE()
+        GROUP BY employee_id
+    ) latest
+
+        ON c.employee_id = latest.employee_id
+        AND c.end-date = latest.latest_end_date
+
+    WHERE c.status='Active'
+    AND c.end_date >= CURDATE()
+
+    ORDER BY c.employee_name ASC
+
+");
 ?>
 
 <!DOCTYPE html>
@@ -165,11 +202,22 @@ Back
 
 <tr>
 
-<td><?= $row['employee_id']; ?></td>
+<td>
+    <?= htmlspecialchars($row['employee_id']); ?>
+</td>
 
-<td><?= $row['employee_name']; ?></td>
+<td>
+    <a
+        href="contract_history.php?employee_id=<?= urlencode($row['employee_id']); ?>"
+        class="fw-bold text-decoration-none">
+    
+        <?= htmlspecialchars($row['employee_name']); ?>
+    </a>
+</td>
 
-<td><?= $row['position_title']; ?></td>
+<td>
+    <?= htmlspeacialchars($row['position_title']); ?>
+</td>
 
 <td>
 <?= date("F d, Y", strtotime($row['start_date'])); ?>
