@@ -4,6 +4,9 @@ include "config.php";
 
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 
+if ($limit <1) {
+    $limit = 10;
+
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
 if ($page < 1) {
@@ -12,8 +15,12 @@ if ($page < 1) {
 
 $start = ($page - 1) * $limit;
 
+/* ==========================================
+   COUNT UNIQUE TERMINATED PERSONNEL
+=========================================== */
+
 $countResult = $conn->query("
-SELECT COUNT(*) as total
+SELECT COUNT(DISTINCT employee_id) AS total
 FROM contracts
 WHERE end_date < CURDATE()
 ");
@@ -24,18 +31,34 @@ if ($countResult) {
     $totalTerminated = $countResult->fetch_assoc()['total'];
 }
 
-$total_pages = ($limit > 0) ? ceil($totalTerminated / $limit) : 1;
+$total_pages = ($totalTerminated > 0) ? ceil($totalTerminated / $limit) : 1;
 
-/* TOTAL TERMINATED RECORDS */
+/* ===============================================
+    GET ONE ROW PER TERMINATED EMPLOYEE
+    SHOW LATEST TERMINATED CONTRACT
+=============================================== */
 $result = $conn->query("
-SELECT *
-FROM contracts
-WHERE end_date < CURDATE()
-ORDER BY end_date DESC
-LIMIT $start, $limit
-");
+    SELECT C.*
+    FROM contracts C
 
-$total_pages = ceil($totalTerminated / $limit);
+    INNER JOIN (
+        SELECT
+            employee_id,
+            MAX(end_date) AS latest_end_date
+        FROM contracts
+        WHERE end_date < CURDATE()
+        GROUP BY employee_id
+    ) latest
+
+        ON c.employee_id = latest.employee_id
+        AND c. end_date = latest. latest_end_date
+
+    WHERE c.end_date < CURDATE()
+
+    ORDER BY c.end_date DESC
+
+    LIMIT $start, $limit
+");
 ?>
 
 <!DOCTYPE html>
@@ -74,14 +97,14 @@ body{
     vertical-align:middle;
 }
 
-.badge-expired{
+.badge-terminated{
     background:#dc2626;
     color:white;
     font-size:13px;
     padding:8px 12px;
 }
 
-.days-expired{
+.days-terminated{
     color:#dc2626;
     font-weight:bold;
 }
@@ -125,7 +148,7 @@ Personnel with Terminated Contracts
 
 <div>
 <h3><?= $totalTerminated; ?></h3>
-<small>Total Terminated Contracts</small>
+<small>Total Terminated Personnel</small>
 </div>
 
 </div>
