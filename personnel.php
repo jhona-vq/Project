@@ -1,190 +1,338 @@
 <?php
+
 include "auth.php";
 include "config.php";
 include "role_access.php";
 
+/*
+|--------------------------------------------------------------------------
+| ROLE ACCESS
+|--------------------------------------------------------------------------
+*/
+allowRoles([
+    'System Administrator',
+    'HR Administrator'
+]);
+
+
+/*
+|--------------------------------------------------------------------------
+| GET PERSONNEL ID
+|--------------------------------------------------------------------------
+*/
 $id = $_GET['id'] ?? '';
 
 $row = [];
 
-if($id != ''){
+
+/*
+|--------------------------------------------------------------------------
+| GET PERSONNEL DATA
+|--------------------------------------------------------------------------
+*/
+if ($id != '') {
+
+    $id = intval($id);
 
     $query = $conn->query("
         SELECT *
         FROM personnel
-        WHERE id='$id'
+        WHERE id = '$id'
     ");
 
-    if($query && $query->num_rows > 0){
+    if ($query && $query->num_rows > 0) {
         $row = $query->fetch_assoc();
     }
 }
 
-allowRoles([
-    'System Administrator',
-    'HR Administrator',
-    
-]);
+
+/*
+|--------------------------------------------------------------------------
+| GENERATE NEXT EMPLOYEE ID
+|--------------------------------------------------------------------------
+|
+| Format:
+| EMP-0001
+| EMP-0002
+| EMP-0003
+|
+|--------------------------------------------------------------------------
+*/
 
 $result = $conn->query("
-SELECT MAX(CAST(SUBSTRING(employee_id,5) AS UNSIGNED)) as max_id
-FROM personnel
+    SELECT MAX(
+        CAST(
+            SUBSTRING(employee_id, 5)
+            AS UNSIGNED
+        )
+    ) AS max_id
+    FROM personnel
+    WHERE employee_id LIKE 'EMP-%'
 ");
 
-if($result->num_rows > 0){
+if ($result && $result->num_rows > 0) {
 
     $empRow = $result->fetch_assoc();
 
-if($empRow['max_id']){
-        $number = $empRow['max_id'] + 1;
-    }else{
+    if (!empty($empRow['max_id'])) {
+        $number = (int)$empRow['max_id'] + 1;
+    } else {
         $number = 1;
-}
+    }
 
-$employee_id = "EMP-" . str_pad($number, 4, "0", STR_PAD_LEFT);
+} else {
 
-}else{
-
-    $employee_id = "EMP-0001";
+    $number = 1;
 
 }
-if(isset($_POST['save_personnel'])){
 
-    $stmt=$conn->prepare("
-    
-    INSERT INTO personnel(
+$employee_id = "EMP-" . str_pad(
+    $number,
+    4,
+    "0",
+    STR_PAD_LEFT
+);
 
-        employee_id,
-        last_name,
-        first_name,
-        middle_name,
+
+/*
+|--------------------------------------------------------------------------
+| SAVE PERSONNEL
+|--------------------------------------------------------------------------
+*/
+
+if (isset($_POST['save_personnel'])) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET FORM VALUES
+    |--------------------------------------------------------------------------
+    */
+
+    $employee_id = $_POST['employee_id'] ?? '';
+
+    $last_name = $_POST['last_name'] ?? '';
+    $first_name = $_POST['first_name'] ?? '';
+    $middle_name = $_POST['middle_name'] ?? '';
+
+    $birth_date = $_POST['birth_date'] ?? '';
+    $sex = $_POST['sex'] ?? '';
+    $date_hired = $_POST['date_hired'] ?? '';
+    $employment_status = $_POST['employment_status'] ?? '';
+    $office_assignment = $_POST['office_assignment'] ?? '';
+    $province = $_POST['province'] ?? '';
+
+    $position_title = $_POST['position_title'] ?? '';
+    $employment_category = $_POST['employment_category'] ?? '';
+    $contract_start = $_POST['contract_start'] ?? '';
+    $contract_end = $_POST['contract_end'] ?? '';
+    $supervisor = $_POST['supervisor'] ?? '';
+    $daily_rate = $_POST['daily_rate'] ?? '';
+    $monthly_rate = $_POST['monthly_rate'] ?? '';
+
+    $place_of_birth = $_POST['place_of_birth'] ?? '';
+    $civil_status = $_POST['civil_status'] ?? '';
+    $height = $_POST['height'] ?? '';
+    $weight = $_POST['weight'] ?? '';
+    $blood_type = $_POST['blood_type'] ?? '';
+
+    $umid_no = $_POST['umid_no'] ?? '';
+    $pagibig_no = $_POST['pagibig_no'] ?? '';
+    $philhealth_no = $_POST['philhealth'] ?? '';
+    $psn = $_POST['psn'] ?? '';
+    $tin_no = $_POST['tin'] ?? '';
+    $agency_employee_no = $_POST['agency_employee_no'] ?? '';
+
+    $citizenship = $_POST['citizenship'] ?? '';
+
+    $residential_address = $_POST['residential_address'] ?? '';
+    $permanent_address = $_POST['permanent_address'] ?? '';
+
+    $telephone_no = $_POST['telephone_no'] ?? '';
+    $contact_no = $_POST['contact_no'] ?? '';
+    $email = $_POST['email'] ?? '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INSERT PERSONNEL
+    |--------------------------------------------------------------------------
+    */
+
+    $stmt = $conn->prepare("
+
+        INSERT INTO personnel (
+
+            employee_id,
+            last_name,
+            first_name,
+            middle_name,
+
+            birth_date,
+            sex,
+            date_hired,
+            employment_status,
+            office_assignment,
+            province,
+
+            position_title,
+            employment_category,
+            contract_start,
+            contract_end,
+            supervisor,
+            daily_rate,
+            monthly_rate,
         
-        birth_date,
-        sex,
-        date_hired,
-        employment_status,
-        office_assignment,
-        province,
-        
-        position_title,
-        employment_category,
-        contract_start,
-        contract_end,
-        supervisor,
-        daily_rate,
-        monthly_rate,
-        
-        place_of_birth,
-        civil_status,
-        height,
-        weight,
-        blood_type,
-        
-        umid_no,
-        pagibig,
-        philhealth,
-        psn,
-        tin,
-        agency_employee_no,
-        
-        citizenship,
-        
-        residential_address,
-        permanent_address,
-        
-        telephone_no,
-        contact_number,
-        email
-        
+            place_of_birth,
+            civil_status,
+            height,
+            weight,
+            blood_type,
+
+            umid_no,
+            pagibig_no,
+            philhealth_no,
+            psn,
+            tin_no,
+            agency_employee_no,
+
+            citizenship,
+
+            residential_address,
+            permanent_address,
+
+            telephone_no,
+            contact_no,
+            email
+
         )
-    
-    VALUES(
-    
-    ?,?,?,?,?,
-    ?,?,?,?,?,
-    ?,?,?,?,?,
-    ?,?,?,?,?,
-    ?,?,?,?,?,
-    ?,?
-    
-    )
-    
-    ");
-    
-    $stmt->bind_param(
-    
-    "ssssssssssssddssssssssssss",
-    
-    $_POST['employee_id'],
-    
-    $_POST['last_name'],
-    $_POST['first_name'],
-    $_POST['middle_name'],
-    
-    $_POST['birth_date'],
-    $_POST['sex'],
-    $_POST['date_hired'],
-    $_POST['employment_status'],
-    $_POST['office_assignment'],
-    $_POST['province'],
 
-    $_POST['position_title'],
-    $_POST['employment_category'],
-    $_POST['contract_start'],
-    $_POST['contract_end'],
-    $_POST['supervisor'],
-    $_POST['daily_rate'],
-    $_POST['monthly_rate'],
+        VALUES (
+
+            ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?,
+            ?,
+            ?, ?,
+            ?, ?, ?
+
+        )
+
+    ");
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK PREPARE
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$stmt) {
+
+        die("Prepare failed: " . $conn->error);
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BIND PARAMETERS
+    |--------------------------------------------------------------------------
+    |
+    | 35 VALUES = 35 type characters
+    |
+    | s = string
+    | d = decimal/double
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    $stmt->bind_param(
+
+        "sssssssssssssssssssssssssss",
     
-    $_POST['place_of_birth'],
-    $_POST['civil_status'],
-    $_POST['height'],
-    $_POST['weight'],
-    $_POST['blood_type'],
+        $employee_id,
     
-    $_POST['umid_no'],
-    $_POST['pagibig'],
-    $_POST['philhealth'],
-    $_POST['psn'],
-    $_POST['tin'],
-    $_POST['agency_employee_no'],
+        $last_name,
+        $first_name,
+        $middle_name,
     
-    $_POST['citizenship'],
+        $birth_date,
+        $sex,
+        $date_hired,
+        $employment_status,
+        $office_assignment,
+        $province,
+
+        $position_title,
+        $employment_category,
+        $contract_start,
+        $contract_end,
+        $supervisor,
+        $daily_rate,
+        $monthly_rate,
     
-    $_POST['residential_address'],
-    $_POST['permanent_address'],
+        $place_of_birth,
+        $civil_status,
+        $height,
+        $weight,
+        $blood_type,
     
-    $_POST['telephone_no'],
-    $_POST['contact_number'],
-    $_POST['email']
+        $umid_no,
+        $pagibig_no,
+        $philhealth_no,
+        $psn,
+        $tin_no,
+        $agency_employee_no,
+    
+        $citizenship,
+    
+        $residential_address,
+        $permanent_address,
+    
+        $telephone_no,
+        $contact_no,
+        $email
     
     );
-    
-    if($stmt->execute()){
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXECUTE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($stmt->execute()) {
 
         $new_id = $conn->insert_id;
-        
-        echo "<script>
-        
-        alert('Personnel Added Successfully');
-        
-        window.location='personnel.php?id=".$new_id."';
-        
-        </script>";
-        
+
+        echo "
+        <script>
+
+            alert('Personnel Added Successfully!');
+
+            window.location='personnel.php?id=" . $new_id . "';
+
+        </script>
+        ";
+
         exit;
-        
-        }else{
-    
-    echo "<script>
-    
-    alert('".$stmt->error."');
-    
-    </script>";
-    
+
+    } else {
+
+        echo "
+        <script>
+
+            alert(" . json_encode($stmt->error) . ");
+
+        </script>
+        ";
+
     }
-    
-    }
+
+    $stmt->close();
+}
 
 ?>
 
@@ -1252,6 +1400,41 @@ elseif($status=="inactive") $badge="warning";
 <div class="fw-semibold"><?= $row['province'] ?? '-' ?></div>
 </div>
 
+<div class="col-md-6">
+<label class="text-muted small">Position Title</label>
+<div class="fw-semibold"><?= $row['position_title'] ?? '-' ?></div>
+</div>
+
+<div class="col-md-6">
+<label class="text-muted small">Employment Category</label>
+<div class="fw-semibold"><?= $row['employment_category'] ?? '-' ?></div>
+</div>
+
+<div class="col-md-6">
+<label class="text-muted small">Contract Start</label>
+<div class="fw-semibold"><?= $row['contract_start'] ?? '-' ?></div>
+</div>
+
+<div class="col-md-6">
+<label class="text-muted small">Contract End</label>
+<div class="fw-semibold"><?= $row['contract_end'] ?? '-' ?></div>
+</div>
+
+<div class="col-md-6">
+<label class="text-muted small">Supervisor</label>
+<div class="fw-semibold"><?= $row['supervisor'] ?? '-' ?></div>
+</div>
+
+<div class="col-md-6">
+<label class="text-muted small">Daily Rate</label>
+<div class="fw-semibold"><?= $row['daily_rate'] ?? '-' ?></div>
+</div>
+
+<div class="col-md-6">
+<label class="text-muted small">Monthly Rate</label>
+<div class="fw-semibold"><?= $row['monthly_rate'] ?? '-' ?></div>
+</div>
+        
 </div>
 
 </div>
@@ -1460,8 +1643,8 @@ data-bs-parent="#pdsAccordion">
 </tr>
 
 <tr>
-<th>Mobile No.</th>
-<td><?= $row['contact_number'] ?? '' ?></td>
+<th>Contact No.</th>
+<td><?= $row['contact_no'] ?? '' ?></td>
 </tr>
 
 <tr>
@@ -1519,189 +1702,374 @@ data-bs-parent="#pdsAccordion">
 </div>
 
 <div class="accordion-item shadow-sm mb-3">
-<h2 class="accordion-header">
-<button
-class="accordion-button collapsed"
-type="button"
-data-bs-toggle="collapse"
-data-bs-target="#family"
-aria-expanded="false"
-aria-controls="family">
-<i class="fas fa-people-roof me-2"></i>
-Family Background
-</button>
-</h2>
 
-<div
-id="family"
-class="accordion-collapse collapse"
-data-bs-parent="#pdsAccordion">
+    <h2 class="accordion-header">
 
-<div class="accordion-body">
+        <button
+            class="accordion-button collapsed"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#family"
+            aria-expanded="false"
+            aria-controls="family">
 
-<a
-href="add_family.php?id=<?= $id ?>"
-class="btn btn-primary rounded-pill px-4 mb-3">
+            <i class="fas fa-people-roof me-2"></i>
+            Family Background
 
-<i class="fas fa-edit"></i>
+        </button>
 
-Add Family Background
+    </h2>
 
-</a>
 
-</a>
+    <div
+        id="family"
+        class="accordion-collapse collapse"
+        data-bs-parent="#pdsAccordion">
 
-<a href="edit_family.php?id=<?= $id ?>"
-class="btn btn-primary rounded-pill px-4 mb-3">
-<i class="fas fa-edit"></i>
+        <div class="accordion-body">
 
-Edit Family Background
 
-</a>
+            <!-- ==========================
+                 ACTION BUTTONS
+            =========================== -->
 
-<a href="delete_family.php?id=<?= $id ?>"
-class="btn btn-primary rounded-pill px-4 mb-3"
-onclick="return confirm('Delete all family background?')">
+            <div class="d-flex flex-wrap gap-2 mb-3">
 
-<i class="fas fa-trash"></i>
+                <a
+                    href="add_family.php?id=<?= (int)$id ?>"
+                    class="btn btn-primary rounded-pill px-4">
 
-Delete Family Background
+                    <i class="fas fa-plus me-1"></i>
+                    Add Family Background
 
-</a>
+                </a>
 
-<table class="table table-bordered table-hover">
 
-<thead class="table-primary">
+                <a
+                    href="edit_family.php?id=<?= (int)$id ?>"
+                    class="btn btn-warning rounded-pill px-4">
 
-<tr>
+                    <i class="fas fa-edit me-1"></i>
+                    Edit Family Background
 
-<th width="12%">Relationship</th>
+                </a>
 
-<th width="24%">Full Name</th>
 
-<th width="15%">Occupation</th>
+                <a
+                    href="delete_family.php?id=<?= (int)$id ?>"
+                    class="btn btn-danger rounded-pill px-4"
+                    onclick="return confirm('Delete all family background?')">
 
-<th width="15%">Employer / Business</th>
+                    <i class="fas fa-trash me-1"></i>
+                    Delete Family Background
 
-<th width="18%">Business Address</th>
+                </a>
 
-<th width="10%">Telephone</th>
+            </div>
 
-<th width="10%">Birth Date</th>
 
-</tr>
+            <!-- ==========================
+                 FAMILY QUERY
+            =========================== -->
 
-</thead>
+            <?php
 
-<tbody>
+            $family = $conn->query("
 
-<?php
+                SELECT
+                    id,
+                    personnel_id,
+                    relationship,
+                    last_name,
+                    first_name,
+                    middle_name,
+                    suffix,
+                    occupation,
+                    employer,
+                    business_address,
+                    telephone,
+                    birth_date
 
-$family = $conn->query("
-SELECT *
-FROM personnel_family
-WHERE personnel_id='$id'
-ORDER BY
-CASE relationship
-WHEN 'Spouse' THEN 1
-WHEN 'Father' THEN 2
-WHEN 'Mother' THEN 3
-WHEN 'Child' THEN 4
-ELSE 5
-END,
-birth_date ASC
-");
+                FROM personnel_family
 
-while($fam = $family->fetch_assoc()){
+                WHERE personnel_id = '" . (int)$id . "'
 
-?>
+                ORDER BY
 
-<tr>
+                    CASE relationship
 
-<td>
+                        WHEN 'Spouse' THEN 1
+                        WHEN 'Father' THEN 2
+                        WHEN 'Mother' THEN 3
+                        WHEN 'Child' THEN 4
+                        ELSE 5
 
-<?php
-switch($fam['relationship']){
+                    END,
 
-case "Spouse":
-    echo "Spouse";
-break;
+                    birth_date ASC
 
-case "Father":
-    echo "Father";
-break;
+            ");
 
-case "Mother":
-    echo "Mother's Maiden Name";
-break;
+            ?>
 
-case "Child":
-    echo "Child";
-break;
 
-default:
-    echo $fam['relationship'];
+            <!-- ==========================
+                 FAMILY TABLE
+            =========================== -->
 
-}
-?>
+            <div class="table-responsive">
 
-</td>
+                <table class="table table-bordered table-hover align-middle mb-0">
 
-<td>
+                    <thead class="table-primary">
 
-<?=
+                        <tr>
 
-trim(
+                            <th>Relationship</th>
 
-$fam['last_name'].
+                            <th>Full Name</th>
 
-", ".
+                            <th>Occupation</th>
 
-$fam['first_name']." ".
+                            <th>Employer / Business</th>
 
-$fam['middle_name']." ".
+                            <th>Business Address</th>
 
-$fam['suffix']
+                            <th>Telephone</th>
 
-)
+                            <th>Birth Date</th>
 
-?>
+                        </tr>
 
-</td>
+                    </thead>
 
-<td><?= $fam['occupation'] ?></td>
 
-<td><?= $fam['employer'] ?></td>
+                    <tbody>
 
-<td><?= $fam['business_address'] ?></td>
+                    <?php if($family && $family->num_rows > 0): ?>
 
-<td><?= $fam['telephone'] ?></td>
+                        <?php while($fam = $family->fetch_assoc()): ?>
 
-<td>
 
-<?=
+                            <?php
 
-($fam['relationship']=="Child")
+                            /* ==========================
+                               RELATIONSHIP
+                            =========================== */
 
-? $fam['birth_date']
+                            switch($fam['relationship']){
 
-: "-"
+                                case "Spouse":
+                                    $relationship = "Spouse";
+                                    break;
 
-?>
+                                case "Father":
+                                    $relationship = "Father";
+                                    break;
 
-</td>
+                                case "Mother":
+                                    $relationship = "Mother's Maiden Name";
+                                    break;
 
-</tr>
+                                case "Child":
+                                    $relationship = "Child";
+                                    break;
 
-<?php } ?>
+                                default:
+                                    $relationship = $fam['relationship'];
+                            }
 
-</tbody>
 
-</table>
+                            /* ==========================
+                               FULL NAME
+                            =========================== */
 
-</div>
+                            $nameParts = [];
 
-</div>
+                            if(!empty(trim($fam['last_name']))){
+                                $nameParts[] = trim($fam['last_name']) . ",";
+                            }
+
+                            if(!empty(trim($fam['first_name']))){
+                                $nameParts[] = trim($fam['first_name']);
+                            }
+
+                            if(!empty(trim($fam['middle_name']))){
+                                $nameParts[] = trim($fam['middle_name']);
+                            }
+
+                            if(!empty(trim($fam['suffix']))){
+                                $nameParts[] = trim($fam['suffix']);
+                            }
+
+
+                            $fullName = trim(
+                                implode(" ", $nameParts)
+                            );
+
+
+                            if($fullName == ""){
+                                $fullName = "N/A";
+                            }
+
+
+                            /* ==========================
+                               OTHER INFORMATION
+                            =========================== */
+
+                            $occupation = trim($fam['occupation'] ?? '');
+
+                            $employer = trim($fam['employer'] ?? '');
+
+                            $businessAddress = trim(
+                                $fam['business_address'] ?? ''
+                            );
+
+                            $telephone = trim(
+                                $fam['telephone'] ?? ''
+                            );
+
+
+                            /* ==========================
+                               BIRTH DATE
+                            =========================== */
+
+                            if(
+                                $fam['relationship'] == "Child" &&
+                                !empty($fam['birth_date'])
+                            ){
+
+                                $birthDate = date(
+                                    "F d, Y",
+                                    strtotime($fam['birth_date'])
+                                );
+
+                            } else {
+
+                                $birthDate = "—";
+
+                            }
+
+                            ?>
+
+
+                            <tr>
+
+                                <!-- RELATIONSHIP -->
+
+                                <td>
+
+                                    <?= htmlspecialchars(
+                                        $relationship
+                                    ) ?>
+
+                                </td>
+
+
+                                <!-- FULL NAME -->
+
+                                <td>
+
+                                    <?= htmlspecialchars(
+                                        $fullName
+                                    ) ?>
+
+                                </td>
+
+
+                                <!-- OCCUPATION -->
+
+                                <td>
+
+                                    <?= $occupation !== ''
+                                        ? htmlspecialchars($occupation)
+                                        : '<span class="text-muted">N/A</span>'
+                                    ?>
+
+                                </td>
+
+
+                                <!-- EMPLOYER -->
+
+                                <td>
+
+                                    <?= $employer !== ''
+                                        ? htmlspecialchars($employer)
+                                        : '<span class="text-muted">N/A</span>'
+                                    ?>
+
+                                </td>
+
+
+                                <!-- BUSINESS ADDRESS -->
+
+                                <td>
+
+                                    <?= $businessAddress !== ''
+                                        ? htmlspecialchars($businessAddress)
+                                        : '<span class="text-muted">N/A</span>'
+                                    ?>
+
+                                </td>
+
+
+                                <!-- TELEPHONE -->
+
+                                <td>
+
+                                    <?= $telephone !== ''
+                                        ? htmlspecialchars($telephone)
+                                        : '<span class="text-muted">N/A</span>'
+                                    ?>
+
+                                </td>
+
+
+                                <!-- BIRTH DATE -->
+
+                                <td>
+
+                                    <?= $birthDate ?>
+
+                                </td>
+
+                            </tr>
+
+
+                        <?php endwhile; ?>
+
+
+                    <?php else: ?>
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="text-center text-muted py-4">
+
+                                <i class="fas fa-users fa-2x mb-2"></i>
+
+                                <br>
+
+                                No family background information available.
+
+                            </td>
+
+                        </tr>
+
+                    <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
 </div>
 
 <div class="accordion-item shadow-sm mb-3">
