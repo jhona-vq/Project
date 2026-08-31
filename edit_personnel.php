@@ -1,141 +1,343 @@
 <?php
-include "config.php";
-include "role_access.php";
+
+include __DIR__ . "/auth.php";
+include __DIR__ . "/config.php";
+include __DIR__ . "/role_access.php";
 
 allowRoles([
     'System Administrator',
     'HR Administrator'
 ]);
 
-$id = $_GET['id'] ?? '';
 
-$row = [];
+/* =========================================================
+   GET PERSONNEL ID
+========================================================= */
 
-if($id != ''){
-    $result = mysqli_query(
-        $conn,
-        "SELECT * FROM personnel WHERE id='$id'"
-    );
+$id = intval($_GET['id'] ?? $_POST['id'] ?? 0);
 
-    if($result && mysqli_num_rows($result) > 0){
-        $row = mysqli_fetch_assoc($result);
-    }
+if ($id <= 0) {
+    die("Invalid personnel ID.");
 }
 
 
+/* =========================================================
+   LOAD PERSONNEL RECORD
+========================================================= */
 
-if(isset($_POST['update_personnel']))
-{
-    $employee_id = $_POST['employee_id'] ?? '';
-    $last_name = $_POST['last_name'] ?? '';
-    $first_name = $_POST['first_name'] ?? '';
-    $middle_name = $_POST['middle_name'] ?? '';
-    $suffix = $_POST['suffix'] ?? '';
-    $sex = $_POST['sex'] ?? '';
-    $civil_status = $_POST['civil_status'] ?? '';
-    $birth_date = $_POST['birth_date'] ?? '';
-    $age = $_POST['age'] ?? '';
-    $place_of_birth = $_POST['place_of_birth'] ?? '';
-    $height = $_POST['height'] ?? '';
-    $weight = $_POST['weight'] ?? '';
-    $blood_type = $_POST['blood_type'] ?? '';
-    $umid_no = $_POST['umid_no'] ?? '';
-    $psn = $_POST['psn'] ?? '';
-    $agency_employee_no = $_POST['agency_employee_no'] ?? '';
-    $citizenship = $_POST['citizenship'] ?? '';
-    $dual_citizenship_type =$_POST['dual_citizenship_type'] ?? '';
-    $citizenship_country =$_POST['citizenship_country'] ?? '';
-    $telephone_no = $_POST['telephone_no'] ?? '';
-    $contact_number = $_POST['contact_number'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $address = $_POST['address'] ?? '';
-    $emergency_contact_person = $_POST['emergency_contact_person'] ?? '';
-    $emergency_contact_number = $_POST['emergency_contact_number'] ?? '';
-    $position_title = $_POST['position_title'] ?? '';
-    $employment_category = $_POST['employment_category'];
-    $office_assignment = $_POST['office_assignment'] ?? '';
-    $province = $_POST['province'] ?? '';
-    $date_hired = $_POST['date_hired'] ?? '';
-    $contract_start = $_POST['contract_start'] ?? '';
-    $contract_end = $_POST['contract_end'] ?? '';
-    $employment_status = $_POST['employment_status'] ?? '';
-    $supervisor = $_POST['supervisor'] ?? '';
-    $daily_rate = $_POST['daily_rate'] ?? '';
-    $monthly_rate = $_POST['monthly_rate'] ?? '';
-    $tin = $_POST['tin'] ?? '';
-    $gsis = $_POST['gsis'] ?? '';
-    $philhealth = $_POST['philhealth'] ?? '';
-    $pagibig = $_POST['pagibig'] ?? '';
-    $spouse_name = $_POST['spouse_name'] ?? '';
-    $spouse_occupation = $_POST['spouse_occupation'] ?? '';
-    $spouse_employer = $_POST['spouse_employer'] ?? '';
-    $spouse_business_address = $_POST['spouse_business_address'] ?? '';
-    $spouse_telephone = $_POST['spouse_telephone'] ?? '';
-
-    $father_name = $_POST['father_name'] ?? '';
-    $mother_name = $_POST['mother_name'] ?? '';
-
-    mysqli_query($conn,"
-UPDATE personnel SET
-
-employee_id='$employee_id',
-last_name='$last_name',
-first_name='$first_name',
-middle_name='$middle_name',
-suffix='$suffix',
-sex='$sex',
-civil_status='$civil_status',
-birth_date='$birth_date',
-age='$age',
-birth_date='$birth_date',
-age='$age',
-place_of_birth='$place_of_birth',
-height='$height',
-weight='$weight',
-blood_type='$blood_type',
-umid_no='$umid_no',
-psn='$psn',
-agency_employee_no='$agency_employee_no',
-citizenship='$citizenship',
-dual_citizenship_type='$dual_citizenship_type',
-citizenship_country='$citizenship_country',
-contact_number='$contact_number',
-telephone_no='$telephone_no',
-email='$email',
-address='$address',
-spouse_name='$spouse_name',
-spouse_occupation='$spouse_occupation',
-spouse_employer='$spouse_employer',
-spouse_business_address='$spouse_business_address',
-spouse_telephone='$spouse_telephone',
-
-father_name='$father_name',
-mother_name='$mother_name',
-emergency_contact_person='$emergency_contact_person',
-emergency_contact_number='$emergency_contact_number',
-position_title='$position_title',
-employment_category='$employment_category',
-office_assignment='$office_assignment',
-province='$province',
-date_hired='$date_hired',
-contract_start='$contract_start',
-contract_end='$contract_end',
-employment_status='$employment_status',
-supervisor='$supervisor',
-daily_rate='$daily_rate',
-monthly_rate='$monthly_rate',
-tin='$tin',
-gsis='$gsis',
-philhealth='$philhealth',
-pagibig='$pagibig'
-
-
-WHERE id='$id'
+$stmt = $conn->prepare("
+    SELECT *
+    FROM personnel
+    WHERE id = ?
+    LIMIT 1
 ");
 
-    header("Location: personnel.php?id=".$id);
+if (!$stmt) {
+    die("Load personnel failed: " . $conn->error);
+}
+
+$stmt->bind_param("i", $id);
+
+if (!$stmt->execute()) {
+    die("Load personnel failed: " . $stmt->error);
+}
+
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    $stmt->close();
+    die("Personnel record not found.");
+}
+
+$row = $result->fetch_assoc();
+
+$stmt->close();
+
+
+/* =========================================================
+   UPDATE PERSONNEL
+========================================================= */
+
+if (isset($_POST['update_personnel'])) {
+
+
+    /* =====================================================
+       GET FORM VALUES
+    ===================================================== */
+
+    $employee_id = trim($_POST['employee_id'] ?? '');
+
+    $last_name = trim($_POST['last_name'] ?? '');
+
+    $first_name = trim($_POST['first_name'] ?? '');
+
+    $middle_name = trim($_POST['middle_name'] ?? '');
+
+    $suffix = trim($_POST['suffix'] ?? '');
+
+    $birth_date = $_POST['birth_date'] ?? null;
+
+    $sex = trim($_POST['sex'] ?? '');
+
+    $date_hired = $_POST['date_hired'] ?? null;
+
+    $employment_status =
+        trim($_POST['employment_status'] ?? '');
+
+    $office_assignment =
+        trim($_POST['office_assignment'] ?? '');
+
+    $province =
+        trim($_POST['province'] ?? '');
+
+    $place_of_birth =
+        trim($_POST['place_of_birth'] ?? '');
+
+    $civil_status =
+        trim($_POST['civil_status'] ?? '');
+
+    $height =
+        $_POST['height'] ?? '';
+
+    $weight =
+        $_POST['weight'] ?? '';
+
+    $blood_type =
+        trim($_POST['blood_type'] ?? '');
+
+
+    /* =====================================================
+       GOVERNMENT INFORMATION
+    ===================================================== */
+
+    $umid_no =
+        trim($_POST['umid_no'] ?? '');
+
+    $pagibig_no =
+        trim($_POST['pagibig_no'] ?? '');
+
+    $philhealth_no =
+        trim($_POST['philhealth_no'] ?? '');
+
+    $psn =
+        trim($_POST['psn'] ?? '');
+
+    $tin_no =
+        trim($_POST['tin_no'] ?? '');
+
+    $agency_employee_no =
+        trim($_POST['agency_employee_no'] ?? '');
+
+
+    /* =====================================================
+       CITIZENSHIP
+    ===================================================== */
+
+    $citizenship =
+        trim($_POST['citizenship'] ?? '');
+
+    $dual_citizenship_type =
+        trim($_POST['dual_citizenship_type'] ?? '');
+
+    $citizenship_country =
+        trim($_POST['citizenship_country'] ?? '');
+
+
+    /* =====================================================
+       CONTACT INFORMATION
+    ===================================================== */
+
+    $telephone_no =
+        trim($_POST['telephone_no'] ?? '');
+
+    $contact_no =
+        trim($_POST['contact_no'] ?? '');
+
+    $email =
+        trim($_POST['email'] ?? '');
+
+
+    /* =====================================================
+       ADDRESS
+    ===================================================== */
+
+    $residential_address =
+        trim($_POST['residential_address'] ?? '');
+
+    $permanent_address =
+        trim($_POST['permanent_address'] ?? '');
+
+
+    /* =====================================================
+       EMPTY VALUES
+    ===================================================== */
+
+    if ($birth_date === '') {
+        $birth_date = null;
+    }
+
+    if ($date_hired === '') {
+        $date_hired = null;
+    }
+
+    if ($height === '') {
+        $height = null;
+    }
+
+    if ($weight === '') {
+        $weight = null;
+    }
+
+    if ($dual_citizenship_type === '') {
+        $dual_citizenship_type = null;
+    }
+
+    if ($citizenship_country === '') {
+        $citizenship_country = null;
+    }
+
+
+    /* =====================================================
+       UPDATE DATABASE
+    ===================================================== */
+
+    $stmt = $conn->prepare("
+
+        UPDATE personnel
+
+        SET
+
+            employee_id = ?,
+            last_name = ?,
+            first_name = ?,
+            middle_name = ?,
+            suffix = ?,
+
+            birth_date = ?,
+            sex = ?,
+            date_hired = ?,
+            employment_status = ?,
+            office_assignment = ?,
+            province = ?,
+
+            place_of_birth = ?,
+            civil_status = ?,
+            height = ?,
+            weight = ?,
+            blood_type = ?,
+
+            umid_no = ?,
+            pagibig_no = ?,
+            philhealth_no = ?,
+            psn = ?,
+            tin_no = ?,
+            agency_employee_no = ?,
+
+            citizenship = ?,
+            dual_citizenship_type = ?,
+            citizenship_country = ?,
+
+            residential_address = ?,
+            permanent_address = ?,
+
+            telephone_no = ?,
+            contact_no = ?,
+            email = ?
+
+        WHERE id = ?
+
+    ");
+
+    if (!$stmt) {
+        die("Update prepare failed: " . $conn->error);
+    }
+
+
+    /* =====================================================
+       BIND PARAMETERS
+       
+       30 fields + 1 ID = 31 variables
+
+       We generate the type string automatically:
+       30 strings + 1 integer
+    ===================================================== */
+
+    $types = str_repeat("s", 30) . "i";
+
+    $stmt->bind_param(
+
+        $types,
+
+        $employee_id,
+        $last_name,
+        $first_name,
+        $middle_name,
+        $suffix,
+
+        $birth_date,
+        $sex,
+        $date_hired,
+        $employment_status,
+        $office_assignment,
+        $province,
+
+        $place_of_birth,
+        $civil_status,
+        $height,
+        $weight,
+        $blood_type,
+
+        $umid_no,
+        $pagibig_no,
+        $philhealth_no,
+        $psn,
+        $tin_no,
+        $agency_employee_no,
+
+        $citizenship,
+        $dual_citizenship_type,
+        $citizenship_country,
+
+        $residential_address,
+        $permanent_address,
+
+        $telephone_no,
+        $contact_no,
+        $email,
+
+        $id
+
+    );
+
+
+    /* =====================================================
+       EXECUTE
+    ===================================================== */
+
+    if (!$stmt->execute()) {
+
+        die(
+            "Update failed: " .
+            $stmt->error
+        );
+
+    }
+
+
+    $stmt->close();
+
+
+    /* =====================================================
+       RETURN TO PERSONNEL PROFILE
+    ===================================================== */
+
+    header(
+        "Location: /Cert-main/personnel.php?id=" . $id
+    );
+
     exit();
 }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -389,10 +591,10 @@ value="<?php echo $row['blood_type'] ?? '' ?>">
         <input
             class="form-check-input"
             type="radio"
-            name="dual_citizenship_type"
+            name="citizenship_type"
             value="By Naturalization"
             id="naturalization"
-            <?php if(($row['dual_citizenship_type'] ?? '') == 'By Naturalization') echo 'checked'; ?>
+            <?php if(($row['citizenship_type'] ?? '') == 'By Naturalization') echo 'checked'; ?>
         >
 
         <label class="form-check-label" for="naturalization">
@@ -458,19 +660,11 @@ value="<?php echo $row['agency_employee_no'] ?? '' ?>">
 </div>
 
 <div class="mb-3">
-<label>Age</label>
+<label>Contact No</label>
 <input type="text"
-name="age"
+name="contact_no"
 class="form-control"
-value="<?php echo $row['age'] ?? '' ?>">
-</div>
-
-<div class="mb-3">
-<label>Contact Number</label>
-<input type="text"
-name="contact_number"
-class="form-control"
-value="<?php echo $row['contact_number'] ?? '' ?>">
+value="<?php echo $row['contact_no'] ?? '' ?>">
 </div>
 
 <div class="mb-3">
@@ -482,11 +676,28 @@ value="<?php echo $row['email'] ?? '' ?>">
 </div>
 
 <div class="mb-3">
-<label>Address</label>
-<input type="text"
-name="address"
-class="form-control"
-value="<?php echo $row['address'] ?? '' ?>">
+
+    <label>Residential Address</label>
+
+    <textarea
+        name="residential_address"
+        class="form-control"
+        rows="3"
+    ><?= htmlspecialchars($row['residential_address'] ?? '') ?></textarea>
+
+</div>
+
+
+<div class="mb-3">
+
+    <label>Permanent Address</label>
+
+    <textarea
+        name="permanent_address"
+        class="form-control"
+        rows="3"
+    ><?= htmlspecialchars($row['permanent_address'] ?? '') ?></textarea>
+
 </div>
 
 <div class="section-title">
@@ -681,9 +892,9 @@ Government Information
 <div class="mb-3">
 <label>TIN</label>
 <input type="text"
-name="tin"
+name="tin_no"
 class="form-control"
-value="<?php echo $row['tin'] ?? '' ?>">
+value="<?php echo $row['tin_no'] ?? '' ?>">
 </div>
 
 <div class="mb-3">
@@ -697,17 +908,17 @@ value="<?php echo $row['gsis'] ?? '' ?>">
 <div class="mb-3">
 <label>Philhealth</label>
 <input type="text"
-name="philhealth"
+name="philhealth_no"
 class="form-control"
-value="<?php echo $row['philhealth'] ?? '' ?>">
+value="<?php echo $row['philhealth_no'] ?? '' ?>">
 </div>
 
 <div class="mb-3">
 <label>Pagibig</label>
 <input type="text"
-name="pagibig"
+name="pagibig_no"
 class="form-control"
-value="<?php echo $row['pagibig'] ?? '' ?>">
+value="<?php echo $row['pagibig_no'] ?? '' ?>">
 </div>
 
 <div class="mb-3">
@@ -738,11 +949,6 @@ value="<?php echo $row['psn'] ?? '' ?>">
 <option value="Active"
 <?php if(($row['employment_status'] ?? '')=="Active") echo "selected"; ?>>
 Active
-</option>
-
-<option value="Expired"
-<?php if(($row['employment_status'] ?? '')=="Expired") echo "selected"; ?>>
-Expired
 </option>
 
 <option value="Resigned"
