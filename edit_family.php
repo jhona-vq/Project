@@ -60,6 +60,7 @@ if(isset($_POST['update_family'])){
         $_POST['spouse_employer'],
         $_POST['spouse_business_address'],
         $_POST['spouse_telephone'],
+        $_POST['spouse_birth_date'],
 
         null
     );
@@ -74,10 +75,11 @@ if(isset($_POST['update_family'])){
         $_POST['father_middle_name'],
         $_POST['father_suffix'],
 
-        "",
-        "",
-        "",
-        "",
+        $_POST['father_occupation'],
+        $_POST['father_employer'],
+        $_POST['father_business_address'],
+        $_POST['father_telephone'],
+        $_POST['father_birth_date'],
 
         null
     );
@@ -92,10 +94,11 @@ if(isset($_POST['update_family'])){
         $_POST['mother_middle_name'],
         "",
 
-        "",
-        "",
-        "",
-        "",
+         $_POST['mother_occupation'],
+        $_POST['mother_employer'],
+        $_POST['mother_business_address'],
+        $_POST['mother_telephone'],
+        $_POST['mother_birth_date'],
 
         null
     );
@@ -150,15 +153,15 @@ if(isset($_POST['update_family'])){
                 "issssssssss",
                 $personnel_id,
                 $relationship,
-                $last,
-                $first,
-                $middle,
+                $last_name,
+                $first_name,
+                $middle_name,
                 $suffix,
-                $blank,
-                $blank,
-                $blank,
-                $blank,
-                $birth
+                $ocupation,
+                $employer,
+                $business_address,
+                $telephone,
+                $birth_date
             );
 
             $stmt->execute();
