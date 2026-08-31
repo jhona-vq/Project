@@ -549,6 +549,16 @@ class="form-control"
 value="<?= $spouse['telephone'] ?? '' ?>">
 </div>
 
+<div class="col-md-2 mb-3">
+<label>Date of Birth</label>
+<input
+type="date"
+name="spouse_birth_date[]"
+class="form-control"
+value="<?= $spouse['birth_date'] ?>">
+
+</div>
+
 </div>
 
 </div>
@@ -602,6 +612,47 @@ class="form-control"
 value="<?= $father['suffix'] ?? '' ?>">
 </div>
 
+<div class="col-md-3 mb-3">
+<label>Occupation</label>
+<input type="text"
+name="father_occupation"
+class="form-control"
+value="<?= $father['occupation'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Employer / Business</label>
+<input type="text"
+name="father_employer"
+class="form-control"
+value="<?= $father['employer'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Business Address</label>
+<input type="text"
+name="father_business_address"
+class="form-control"
+value="<?= $father['business_address'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Telephone</label>
+<input type="text"
+name="father_telephone"
+class="form-control"
+value="<?= $father['telephone'] ?? '' ?>">
+</div>
+
+<div class="col-md-2 mb-3">
+<label>Date of Birth</label>
+<input
+type="date"
+name="father_birth_date[]"
+class="form-control"
+value="<?= $father['birth_date'] ?>">
+</div>
+
 </div>
 
 </div>
@@ -644,6 +695,47 @@ type="text"
 name="mother_middle_name"
 class="form-control"
 value="<?= $mother['middle_name'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Occupation</label>
+<input type="text"
+name="mother_occupation"
+class="form-control"
+value="<?= $mother['occupation'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Employer / Business</label>
+<input type="text"
+name="mother_employer"
+class="form-control"
+value="<?= $mother['employer'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Business Address</label>
+<input type="text"
+name="mother_business_address"
+class="form-control"
+value="<?= $mother['business_address'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Telephone</label>
+<input type="text"
+name="mother_telephone"
+class="form-control"
+value="<?= $mother['telephone'] ?? '' ?>">
+</div>
+
+<div class="col-md-2 mb-3">
+<label>Date of Birth</label>
+<input
+type="date"
+name="mother_birth_date[]"
+class="form-control"
+value="<?= $mother['birth_date'] ?>">
 </div>
 
 </div>
