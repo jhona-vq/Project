@@ -1,8 +1,20 @@
 <?php
+
 include "auth.php";
 include "config.php";
 
 $personnel_id = $_GET['id'] ?? '';
+
+/* ==========================
+   VALIDATE PERSONNEL ID
+========================== */
+
+$personnel_id = intval($personnel_id);
+
+if ($personnel_id <= 0) {
+    die("Invalid personnel ID.");
+}
+
 
 /* ==========================
    LOAD EXISTING RECORDS
@@ -13,172 +25,270 @@ $father = [];
 $mother = [];
 $children = [];
 
-$getFamily = $conn->query("
-SELECT *
-FROM personnel_family
-WHERE personnel_id='$personnel_id'
+$stmt = $conn->prepare("
+    SELECT *
+    FROM personnel_family
+    WHERE personnel_id = ?
 ");
 
-while($row = $getFamily->fetch_assoc()){
+if (!$stmt) {
+    die("Load family prepare failed: " . $conn->error);
+}
 
-    if($row['relationship']=="Spouse"){
+$stmt->bind_param(
+    "i",
+    $personnel_id
+);
+
+$stmt->execute();
+
+$getFamily = $stmt->get_result();
+
+while ($row = $getFamily->fetch_assoc()) {
+
+    if ($row['relationship'] == "Spouse") {
+
         $spouse = $row;
-    }
 
-    elseif($row['relationship']=="Father"){
+    } elseif ($row['relationship'] == "Father") {
+
         $father = $row;
-    }
 
-    elseif($row['relationship']=="Mother"){
+    } elseif ($row['relationship'] == "Mother") {
+
         $mother = $row;
-    }
 
-    elseif($row['relationship']=="Child"){
+    } elseif ($row['relationship'] == "Child") {
+
         $children[] = $row;
     }
-
 }
+
+$stmt->close();
+
 
 /* ==========================
    SAVE FAMILY
 ========================== */
 
-if(isset($_POST['save_family'])){
+if (isset($_POST['save_family'])) {
+
+
+    /* ==========================
+       SAVE SPOUSE
+    ========================== */
 
     savePerson(
         $conn,
         $personnel_id,
         "Spouse",
 
-        $_POST['spouse_last_name'],
-        $_POST['spouse_first_name'],
-        $_POST['spouse_middle_name'],
-        $_POST['spouse_suffix'],
+        $_POST['spouse_last_name'] ?? '',
+        $_POST['spouse_first_name'] ?? '',
+        $_POST['spouse_middle_name'] ?? '',
+        $_POST['spouse_suffix'] ?? '',
 
-        $_POST['spouse_occupation'],
-        $_POST['spouse_employer'],
-        $_POST['spouse_business_address'],
-        $_POST['spouse_telephone'],
+        $_POST['spouse_occupation'] ?? '',
+        $_POST['spouse_employer'] ?? '',
+        $_POST['spouse_business_address'] ?? '',
+        $_POST['spouse_telephone'] ?? '',
 
         null
     );
+
+
+    /* ==========================
+       SAVE FATHER
+    ========================== */
 
     savePerson(
         $conn,
         $personnel_id,
         "Father",
 
-        $_POST['father_last_name'],
-        $_POST['father_first_name'],
-        $_POST['father_middle_name'],
-        $_POST['father_suffix'],
+        $_POST['father_last_name'] ?? '',
+        $_POST['father_first_name'] ?? '',
+        $_POST['father_middle_name'] ?? '',
+        $_POST['father_suffix'] ?? '',
 
-        "",
-        "",
-        "",
-        "",
+        $_POST['father_occupation'] ?? '',
+        $_POST['father_employer'] ?? '',
+        $_POST['father_business_address'] ?? '',
+        $_POST['father_telephone'] ?? '',
 
         null
     );
+
+
+    /* ==========================
+       SAVE MOTHER
+    ========================== */
 
     savePerson(
         $conn,
         $personnel_id,
         "Mother",
 
-        $_POST['mother_last_name'],
-        $_POST['mother_first_name'],
-        $_POST['mother_middle_name'],
-        "",
+        $_POST['mother_last_name'] ?? '',
+        $_POST['mother_first_name'] ?? '',
+        $_POST['mother_middle_name'] ?? '',
+        '',
 
-        "",
-        "",
-        "",
-        "",
+        $_POST['mother_occupation'] ?? '',
+        $_POST['mother_employer'] ?? '',
+        $_POST['mother_business_address'] ?? '',
+        $_POST['mother_telephone'] ?? '',
 
         null
     );
+
+
     /* ==========================
-   SAVE CHILDREN
-========================== */
+       DELETE OLD CHILDREN
+    ========================== */
 
-$conn->query("
-DELETE FROM personnel_family
-WHERE personnel_id='$personnel_id'
-AND relationship='Child'
-");
+    $delete = $conn->prepare("
+        DELETE FROM personnel_family
+        WHERE personnel_id = ?
+        AND relationship = 'Child'
+    ");
 
-if(isset($_POST['child_last_name'])){
-
-    foreach($_POST['child_last_name'] as $i => $last){
-
-        if(trim($last)==''){
-            continue;
-        }
-
-        $first  = $_POST['child_first_name'][$i];
-        $middle = $_POST['child_middle_name'][$i];
-        $suffix = $_POST['child_suffix'][$i];
-        $birth  = $_POST['child_birth_date'][$i];
-
-        $relationship = "Child";
-
-        $blank = "";
-
-        $stmt = $conn->prepare("
-        INSERT INTO personnel_family
-        (
-            personnel_id,
-            relationship,
-            last_name,
-            first_name,
-            middle_name,
-            suffix,
-            occupation,
-            employer,
-            business_address,
-            telephone,
-            birth_date
-        )
-        VALUES
-        (?,?,?,?,?,?,?,?,?,?,?)
-        ");
-
-        $stmt->bind_param(
-            "issssssssss",
-            $personnel_id,
-            $relationship,
-            $last,
-            $first,
-            $middle,
-            $suffix,
-            $blank,
-            $blank,
-            $blank,
-            $blank,
-            $birth
-        );
-
-        $stmt->execute();
+    if (!$delete) {
+        die("Delete children prepare failed: " . $conn->error);
     }
 
-}
+    $delete->bind_param(
+        "i",
+        $personnel_id
+    );
+
+    if (!$delete->execute()) {
+        die("Delete children failed: " . $delete->error);
+    }
+
+    $delete->close();
+
+
+    /* ==========================
+       SAVE CHILDREN
+    ========================== */
+
+    if (
+        isset($_POST['child_last_name']) &&
+        is_array($_POST['child_last_name'])
+    ) {
+
+        foreach ($_POST['child_last_name'] as $i => $last) {
+
+            $last = trim($last);
+
+            /*
+            Skip empty child rows
+            */
+            if ($last == '') {
+                continue;
+            }
+
+            $first = $_POST['child_first_name'][$i] ?? '';
+            $middle = $_POST['child_middle_name'][$i] ?? '';
+            $suffix = $_POST['child_suffix'][$i] ?? '';
+
+            $birth = $_POST['child_birth_date'][$i] ?? null;
+
+            /*
+            Empty date becomes NULL
+            */
+            if ($birth == '') {
+                $birth = null;
+            }
+
+            $relationship = "Child";
+
+            $occupation = "";
+            $employer = "";
+            $business_address = "";
+            $telephone = "";
+
+
+            /* ==========================
+               INSERT CHILD
+            ========================== */
+
+            $stmt = $conn->prepare("
+                INSERT INTO personnel_family
+                (
+                    personnel_id,
+                    relationship,
+                    last_name,
+                    first_name,
+                    middle_name,
+                    suffix,
+                    occupation,
+                    employer,
+                    business_address,
+                    telephone,
+                    birth_date
+                )
+                VALUES
+                (
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                )
+            ");
+
+            if (!$stmt) {
+                die("Child prepare failed: " . $conn->error);
+            }
+
+
+            $stmt->bind_param(
+                "issssssssss",
+
+                $personnel_id,
+                $relationship,
+
+                $last,
+                $first,
+                $middle,
+                $suffix,
+
+                $occupation,
+                $employer,
+                $business_address,
+                $telephone,
+
+                $birth
+            );
+
+
+            if (!$stmt->execute()) {
+                die("Child save failed: " . $stmt->error);
+            }
+
+            $stmt->close();
+        }
+    }
+
+
+    /* ==========================
+       SUCCESS
+    ========================== */
 
     echo "
     <script>
 
-    alert('Family Background Saved Successfully.');
+        alert('Family Background Saved Successfully.');
 
-    window.location='personnel.php?id=$personnel_id';
+        window.location='personnel.php?id=" . $personnel_id . "';
 
-    </script>";
+    </script>
+    ";
 
     exit;
-
 }
 
+
 /* ==========================
-   INSERT OR UPDATE
+   INSERT OR UPDATE PERSON
 ========================== */
 
 function savePerson(
@@ -207,135 +317,155 @@ function savePerson(
 
     $birth
 
-){
+) {
 
-    $check = $conn->query("
+    /* ==========================
+       CHECK EXISTING RECORD
+    ========================== */
 
-    SELECT id
-
-    FROM personnel_family
-
-    WHERE personnel_id='$personnel_id'
-
-    AND relationship='$relationship'
-
+    $check = $conn->prepare("
+        SELECT id
+        FROM personnel_family
+        WHERE personnel_id = ?
+        AND relationship = ?
+        LIMIT 1
     ");
 
-    if($check->num_rows>0){
+    if (!$check) {
+        die("Check family prepare failed: " . $conn->error);
+    }
 
-        $old = $check->fetch_assoc();
-
-        $stmt = $conn->prepare("
-
-        UPDATE personnel_family
-
-        SET
-
-        last_name=?,
-        first_name=?,
-        middle_name=?,
-        suffix=?,
-
-        occupation=?,
-        employer=?,
-        business_address=?,
-        telephone=?,
-        birth_date=?
-
-        WHERE id=?
-
-        ");
-
-        $stmt->bind_param(
-
-        "sssssssssi",
-
-        $last,
-        $first,
-        $middle,
-        $suffix,
-
-        $occupation,
-        $employer,
-        $business,
-        $telephone,
-        $birth,
-
-        $old['id']
-
-        );
-
-    }else{
-
-        $stmt = $conn->prepare("
-
-        INSERT INTO personnel_family(
-
-        personnel_id,
-
-        relationship,
-
-        last_name,
-
-        first_name,
-
-        middle_name,
-
-        suffix,
-
-        occupation,
-
-        employer,
-
-        business_address,
-
-        telephone,
-
-        birth_date
-
-        )
-
-        VALUES(
-
-        ?,?,?,?,?,?,?,?,?,?,?
-
-        )
-
-        ");
-
-        $stmt->bind_param(
-
-        "issssssssss",
-
+    $check->bind_param(
+        "is",
         $personnel_id,
+        $relationship
+    );
 
-        $relationship,
+    if (!$check->execute()) {
+        die("Check family failed: " . $check->error);
+    }
 
-        $last,
+    $result = $check->get_result();
 
-        $first,
 
-        $middle,
+    /* ==========================
+       UPDATE EXISTING
+    ========================== */
 
-        $suffix,
+    if ($result->num_rows > 0) {
 
-        $occupation,
+        $old = $result->fetch_assoc();
 
-        $employer,
+        $family_id = intval($old['id']);
 
-        $business,
+        $check->close();
 
-        $telephone,
+        $stmt = $conn->prepare("
+            UPDATE personnel_family
+            SET
+                last_name = ?,
+                first_name = ?,
+                middle_name = ?,
+                suffix = ?,
+                occupation = ?,
+                employer = ?,
+                business_address = ?,
+                telephone = ?,
+                birth_date = ?
+            WHERE id = ?
+        ");
 
-        $birth
+        if (!$stmt) {
+            die("Update family prepare failed: " . $conn->error);
+        }
 
+        $stmt->bind_param(
+            "sssssssssi",
+
+            $last,
+            $first,
+            $middle,
+            $suffix,
+
+            $occupation,
+            $employer,
+            $business,
+            $telephone,
+
+            $birth,
+
+            $family_id
         );
+
+        if (!$stmt->execute()) {
+            die("Update family failed: " . $stmt->error);
+        }
+
+        $stmt->close();
 
     }
 
-    $stmt->execute();
 
+    /* ==========================
+       INSERT NEW
+    ========================== */
+
+    else {
+
+        $check->close();
+
+        $stmt = $conn->prepare("
+            INSERT INTO personnel_family
+            (
+                personnel_id,
+                relationship,
+                last_name,
+                first_name,
+                middle_name,
+                suffix,
+                occupation,
+                employer,
+                business_address,
+                telephone,
+                birth_date
+            )
+            VALUES
+            (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+        ");
+
+        if (!$stmt) {
+            die("Insert family prepare failed: " . $conn->error);
+        }
+
+        $stmt->bind_param(
+            "issssssssss",
+
+            $personnel_id,
+            $relationship,
+
+            $last,
+            $first,
+            $middle,
+            $suffix,
+
+            $occupation,
+            $employer,
+            $business,
+            $telephone,
+
+            $birth
+        );
+
+        if (!$stmt->execute()) {
+            die("Insert family failed: " . $stmt->error);
+        }
+
+        $stmt->close();
+    }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -593,6 +723,48 @@ class="form-control"
 value="<?= $father['suffix'] ?? '' ?>">
 </div>
 
+<div class="col-md-3 mb-3">
+<label>Occupation</label>
+<input type="text"
+name="father_occupation"
+class="form-control"
+value="<?= $father['occupation'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Employer / Business</label>
+<input type="text"
+name="father_employer"
+class="form-control"
+value="<?= $father['employer'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Business Address</label>
+<input type="text"
+name="father_business_address"
+class="form-control"
+value="<?= $father['business_address'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Telephone</label>
+<input type="text"
+name="father_telephone"
+class="form-control"
+value="<?= $father['telephone'] ?? '' ?>">
+</div>
+
+<div class="col-md-2 mb-3">
+<label>Date of Birth</label>
+<input
+type="date"
+name="father_birth_date[]"
+class="form-control"
+value="<?= $father['birth_date'] ?>">
+
+</div>
+
 </div>
 
 </div>
@@ -635,6 +807,48 @@ type="text"
 name="mother_middle_name"
 class="form-control"
 value="<?= $mother['middle_name'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Occupation</label>
+<input type="text"
+name="mother_occupation"
+class="form-control"
+value="<?= $mother['occupation'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Employer / Business</label>
+<input type="text"
+name="mother_employer"
+class="form-control"
+value="<?= $mother['employer'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Business Address</label>
+<input type="text"
+name="mother_business_address"
+class="form-control"
+value="<?= $mother['business_address'] ?? '' ?>">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Telephone</label>
+<input type="text"
+name="mother_telephone"
+class="form-control"
+value="<?= $mother['telephone'] ?? '' ?>">
+</div>
+
+<div class="col-md-2 mb-3">
+<label>Date of Birth</label>
+<input
+type="date"
+name="mother_birth_date[]"
+class="form-control"
+value="<?= $mother['birth_date'] ?>">
+
 </div>
 
 </div>
