@@ -167,12 +167,12 @@ placeholder="Search Personnel...">
 <td class="name-text">
 
 <a
-    href="contract_history.php?employee_id=<?= urlencode($row['employee-id']); ?>"
+     href="personnel.php?id=<?= (int)$row['id']; ?>"
     class="text-decoration-none fw-bold">
     
-    <?= htmlspecialchars($row['last_name']); ?>,
+     <?= htmlspecialchars($row['last_name']); ?>,
     <?= htmlspecialchars($row['first_name']); ?>
-    <?= htmlspecialchars($row['middle_name']); ?>
+    <?= htmlspecialchars($row['middle_name'] ?? ''); ?>
 
 </a>
     
@@ -182,7 +182,7 @@ placeholder="Search Personnel...">
 
 <td><?= $row['province']; ?></td>
 
-<td><?= $row['contact_number']; ?></td>
+<td><?= $row['contact_no']; ?></td>
 
 <td><?= $row['email']; ?></td>
 
