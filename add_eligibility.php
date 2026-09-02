@@ -2,7 +2,7 @@
 include "auth.php";
 include "config.php";
 
-$personnel_id = $_GET['id'] ?? '';
+$personnel_id = $_GET['personnel_id'] ?? '';
 
 
 if(isset($_POST['save_eligibility'])){
@@ -197,14 +197,59 @@ class="form-control">
 
 <div class="col-md-4 mb-3">
 
-<label>
-Valid Until
-</label>
+    <label>
+        Valid Until
+    </label>
 
-<input
-type="date"
-name="valid_until"
-class="form-control">
+    <select
+        id="valid_until_select"
+        class="form-select"
+        onchange="handleValidUntil()"
+    >
+
+        <option value="">
+            Select Validity
+        </option>
+
+        <option value="No Expiration">
+            No Expiration
+        </option>
+
+        <option value="As Applicable">
+            As Applicable
+        </option>
+
+        <option value="date">
+            Specific Date
+        </option>
+
+    </select>
+
+
+    <!-- DATE INPUT -->
+
+    <div
+        id="valid_until_date_container"
+        class="mt-2"
+        style="display:none;"
+    >
+
+        <input
+            type="date"
+            id="valid_until_date"
+            class="form-control"
+        >
+
+    </div>
+
+
+    <!-- ACTUAL VALUE THAT WILL BE SAVED -->
+
+    <input
+        type="hidden"
+        name="valid_until"
+        id="valid_until"
+    >
 
 </div>
 
@@ -275,6 +320,125 @@ document.addEventListener("DOMContentLoaded",function(){
     }
 
 });
+</script>
+
+<script>
+
+function handleValidUntil(){
+
+    const select =
+        document.getElementById("valid_until_select");
+
+    const dateContainer =
+        document.getElementById(
+            "valid_until_date_container"
+        );
+
+    const dateInput =
+        document.getElementById(
+            "valid_until_date"
+        );
+
+    const hiddenInput =
+        document.getElementById(
+            "valid_until"
+        );
+
+
+    /* ================================
+       NO EXPIRATION
+    ================================= */
+
+    if(select.value === "No Expiration"){
+
+        dateContainer.style.display = "none";
+
+        dateInput.required = false;
+
+        dateInput.value = "";
+
+        hiddenInput.value = "No Expiration";
+
+    }
+
+
+    /* ================================
+       AS APPLICABLE
+    ================================= */
+
+    else if(select.value === "As Applicable"){
+
+        dateContainer.style.display = "none";
+
+        dateInput.required = false;
+
+        dateInput.value = "";
+
+        hiddenInput.value = "As Applicable";
+
+    }
+
+
+    /* ================================
+       SPECIFIC DATE
+    ================================= */
+
+    else if(select.value === "date"){
+
+        dateContainer.style.display = "block";
+
+        dateInput.required = true;
+
+        hiddenInput.value = dateInput.value;
+
+    }
+
+
+    /* ================================
+       EMPTY
+    ================================= */
+
+    else{
+
+        dateContainer.style.display = "none";
+
+        dateInput.required = false;
+
+        dateInput.value = "";
+
+        hiddenInput.value = "";
+
+    }
+
+}
+
+
+/* ====================================
+   UPDATE HIDDEN VALUE WHEN DATE CHANGES
+==================================== */
+
+document.getElementById(
+    "valid_until_date"
+).addEventListener(
+    "change",
+    function(){
+
+        const select =
+            document.getElementById(
+                "valid_until_select"
+            );
+
+        if(select.value === "date"){
+
+            document.getElementById(
+                "valid_until"
+            ).value = this.value;
+
+        }
+
+    }
+);
+
 </script>
 
 </body>
