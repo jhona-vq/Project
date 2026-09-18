@@ -2,7 +2,7 @@
 include "auth.php";
 include "config.php";
 
-$personnel_id = $_GET['id'] ?? '';
+$personnel_id = $_GET['personnel_id'] ?? '';
 
 if(isset($_POST['save_education'])){
 
@@ -236,9 +236,9 @@ class="form-control">
 </div>
 
 <div class="col-md-6 mb-3">
-<label>Highest Level</label>
+<label>Basic Education / Degree / Course</label>
 <input type="text"
-name="highest_level[Secondary_JHS]"
+name="degree[Secondary_JHS]"
 class="form-control">
 </div>
 
