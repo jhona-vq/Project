@@ -4,8 +4,9 @@ include "config.php";
 
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 
-if ($limit <1) {
+if ($limit < 1) {
     $limit = 10;
+}
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
@@ -15,14 +16,15 @@ if ($page < 1) {
 
 $start = ($page - 1) * $limit;
 
+
 /* ==========================================
    COUNT UNIQUE TERMINATED PERSONNEL
-=========================================== */
+========================================== */
 
 $countResult = $conn->query("
-SELECT COUNT(DISTINCT employee_id) AS total
-FROM contracts
-WHERE end_date < CURDATE()
+    SELECT COUNT(DISTINCT employee_id) AS total
+    FROM contracts
+    WHERE end_date < CURDATE()
 ");
 
 $totalTerminated = 0;
@@ -31,15 +33,19 @@ if ($countResult) {
     $totalTerminated = $countResult->fetch_assoc()['total'];
 }
 
-$total_pages = ($totalTerminated > 0) ? ceil($totalTerminated / $limit) : 1;
+$total_pages = ($totalTerminated > 0)
+    ? ceil($totalTerminated / $limit)
+    : 1;
 
-/* ===============================================
-    GET ONE ROW PER TERMINATED EMPLOYEE
-    SHOW LATEST TERMINATED CONTRACT
-=============================================== */
+
+/* ==========================================
+   GET ONE ROW PER TERMINATED EMPLOYEE
+   SHOW LATEST TERMINATED CONTRACT
+========================================== */
+
 $result = $conn->query("
-    SELECT C.*
-    FROM contracts C
+    SELECT c.*
+    FROM contracts c
 
     INNER JOIN (
         SELECT
@@ -51,7 +57,7 @@ $result = $conn->query("
     ) latest
 
         ON c.employee_id = latest.employee_id
-        AND c. end_date = latest. latest_end_date
+        AND c.end_date = latest.latest_end_date
 
     WHERE c.end_date < CURDATE()
 
@@ -228,7 +234,15 @@ strtotime($row['end_date'])
 
 <td><?= $row['employee_id']; ?></td>
 
-<td><?= $row['employee_name']; ?></td>
+<td>
+    <a
+        href="contracts.php?employee_id=<?= urlencode($row['employee_id']); ?>"
+        class="fw-bold text-decoration-none">
+
+        <?= htmlspecialchars($row['employee_name']); ?>
+
+    </a>
+</td>
 
 <td><?= $row['position_title']; ?></td>
 
