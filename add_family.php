@@ -3,22 +3,51 @@
 include "auth.php";
 include "config.php";
 
-$personnel_id = $_GET['id'] ?? '';
-
-/* ==========================
-   VALIDATE PERSONNEL ID
-========================== */
-
-$personnel_id = intval($personnel_id);
+$personnel_id = intval($_GET['id'] ?? 0);
 
 if ($personnel_id <= 0) {
     die("Invalid personnel ID.");
 }
 
 
-/* ==========================
-   LOAD EXISTING RECORDS
-========================== */
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function e($value)
+{
+    return htmlspecialchars(
+        $value ?? '',
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
+
+
+/* =========================================================
+   FORMAT DATE FOR HTML DATE INPUT
+   Database -> YYYY-MM-DD
+========================================================= */
+
+function formatDateForInput($date)
+{
+    if (empty($date) || $date === '0000-00-00') {
+        return '';
+    }
+
+    $timestamp = strtotime($date);
+
+    if ($timestamp === false) {
+        return '';
+    }
+
+    return date('Y-m-d', $timestamp);
+}
+
+
+/* =========================================================
+   LOAD EXISTING FAMILY RECORDS
+========================================================= */
 
 $spouse = [];
 $father = [];
@@ -29,36 +58,33 @@ $stmt = $conn->prepare("
     SELECT *
     FROM personnel_family
     WHERE personnel_id = ?
+    ORDER BY id ASC
 ");
 
 if (!$stmt) {
     die("Load family prepare failed: " . $conn->error);
 }
 
-$stmt->bind_param(
-    "i",
-    $personnel_id
-);
-
+$stmt->bind_param("i", $personnel_id);
 $stmt->execute();
 
 $getFamily = $stmt->get_result();
 
 while ($row = $getFamily->fetch_assoc()) {
 
-    if ($row['relationship'] == "Spouse") {
+    if ($row['relationship'] === "Spouse") {
 
         $spouse = $row;
 
-    } elseif ($row['relationship'] == "Father") {
+    } elseif ($row['relationship'] === "Father") {
 
         $father = $row;
 
-    } elseif ($row['relationship'] == "Mother") {
+    } elseif ($row['relationship'] === "Mother") {
 
         $mother = $row;
 
-    } elseif ($row['relationship'] == "Child") {
+    } elseif ($row['relationship'] === "Child") {
 
         $children[] = $row;
     }
@@ -67,85 +93,102 @@ while ($row = $getFamily->fetch_assoc()) {
 $stmt->close();
 
 
-/* ==========================
+/* =========================================================
    SAVE FAMILY
-========================== */
+========================================================= */
 
 if (isset($_POST['save_family'])) {
 
+    /* =====================================================
+       SPOUSE
+    ===================================================== */
 
-    /* ==========================
-       SAVE SPOUSE
-    ========================== */
+    $spouse_birth = $_POST['spouse_birth_date'] ?? '';
+
+    if ($spouse_birth === '') {
+        $spouse_birth = null;
+    }
 
     savePerson(
         $conn,
         $personnel_id,
         "Spouse",
 
-        $_POST['spouse_last_name'] ?? '',
-        $_POST['spouse_first_name'] ?? '',
-        $_POST['spouse_middle_name'] ?? '',
-        $_POST['spouse_suffix'] ?? '',
+        trim($_POST['spouse_last_name'] ?? ''),
+        trim($_POST['spouse_first_name'] ?? ''),
+        trim($_POST['spouse_middle_name'] ?? ''),
+        trim($_POST['spouse_suffix'] ?? ''),
 
-        $_POST['spouse_occupation'] ?? '',
-        $_POST['spouse_employer'] ?? '',
-        $_POST['spouse_business_address'] ?? '',
-        $_POST['spouse_telephone'] ?? '',
+        trim($_POST['spouse_occupation'] ?? ''),
+        trim($_POST['spouse_employer'] ?? ''),
+        trim($_POST['spouse_business_address'] ?? ''),
+        trim($_POST['spouse_telephone'] ?? ''),
 
-        null
+        $spouse_birth
     );
 
 
-    /* ==========================
-       SAVE FATHER
-    ========================== */
+    /* =====================================================
+       FATHER
+    ===================================================== */
+
+    $father_birth = $_POST['father_birth_date'] ?? '';
+
+    if ($father_birth === '') {
+        $father_birth = null;
+    }
 
     savePerson(
         $conn,
         $personnel_id,
         "Father",
 
-        $_POST['father_last_name'] ?? '',
-        $_POST['father_first_name'] ?? '',
-        $_POST['father_middle_name'] ?? '',
-        $_POST['father_suffix'] ?? '',
+        trim($_POST['father_last_name'] ?? ''),
+        trim($_POST['father_first_name'] ?? ''),
+        trim($_POST['father_middle_name'] ?? ''),
+        trim($_POST['father_suffix'] ?? ''),
 
-        $_POST['father_occupation'] ?? '',
-        $_POST['father_employer'] ?? '',
-        $_POST['father_business_address'] ?? '',
-        $_POST['father_telephone'] ?? '',
+        trim($_POST['father_occupation'] ?? ''),
+        trim($_POST['father_employer'] ?? ''),
+        trim($_POST['father_business_address'] ?? ''),
+        trim($_POST['father_telephone'] ?? ''),
 
-        null
+        $father_birth
     );
 
 
-    /* ==========================
-       SAVE MOTHER
-    ========================== */
+    /* =====================================================
+       MOTHER
+    ===================================================== */
+
+    $mother_birth = $_POST['mother_birth_date'] ?? '';
+
+    if ($mother_birth === '') {
+        $mother_birth = null;
+    }
 
     savePerson(
         $conn,
         $personnel_id,
         "Mother",
 
-        $_POST['mother_last_name'] ?? '',
-        $_POST['mother_first_name'] ?? '',
-        $_POST['mother_middle_name'] ?? '',
+        trim($_POST['mother_last_name'] ?? ''),
+        trim($_POST['mother_first_name'] ?? ''),
+        trim($_POST['mother_middle_name'] ?? ''),
         '',
 
-        $_POST['mother_occupation'] ?? '',
-        $_POST['mother_employer'] ?? '',
-        $_POST['mother_business_address'] ?? '',
-        $_POST['mother_telephone'] ?? '',
+        trim($_POST['mother_occupation'] ?? ''),
+        trim($_POST['mother_employer'] ?? ''),
+        trim($_POST['mother_business_address'] ?? ''),
+        trim($_POST['mother_telephone'] ?? ''),
 
-        null
+        $mother_birth
     );
 
 
-    /* ==========================
+    /* =====================================================
        DELETE OLD CHILDREN
-    ========================== */
+    ===================================================== */
 
     $delete = $conn->prepare("
         DELETE FROM personnel_family
@@ -157,10 +200,7 @@ if (isset($_POST['save_family'])) {
         die("Delete children prepare failed: " . $conn->error);
     }
 
-    $delete->bind_param(
-        "i",
-        $personnel_id
-    );
+    $delete->bind_param("i", $personnel_id);
 
     if (!$delete->execute()) {
         die("Delete children failed: " . $delete->error);
@@ -169,36 +209,54 @@ if (isset($_POST['save_family'])) {
     $delete->close();
 
 
-    /* ==========================
+    /* =====================================================
        SAVE CHILDREN
-    ========================== */
+    ===================================================== */
 
     if (
         isset($_POST['child_last_name']) &&
         is_array($_POST['child_last_name'])
     ) {
 
+        $childStmt = $conn->prepare("
+            INSERT INTO personnel_family
+            (
+                personnel_id,
+                relationship,
+                last_name,
+                first_name,
+                middle_name,
+                suffix,
+                occupation,
+                employer,
+                business_address,
+                telephone,
+                birth_date
+            )
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        if (!$childStmt) {
+            die("Child prepare failed: " . $conn->error);
+        }
+
         foreach ($_POST['child_last_name'] as $i => $last) {
 
             $last = trim($last);
 
-            /*
-            Skip empty child rows
-            */
-            if ($last == '') {
+            /* Skip empty child rows */
+            if ($last === '') {
                 continue;
             }
 
-            $first = $_POST['child_first_name'][$i] ?? '';
-            $middle = $_POST['child_middle_name'][$i] ?? '';
-            $suffix = $_POST['child_suffix'][$i] ?? '';
+            $first = trim($_POST['child_first_name'][$i] ?? '');
+            $middle = trim($_POST['child_middle_name'][$i] ?? '');
+            $suffix = trim($_POST['child_suffix'][$i] ?? '');
 
-            $birth = $_POST['child_birth_date'][$i] ?? null;
+            $birth = $_POST['child_birth_date'][$i] ?? '';
 
-            /*
-            Empty date becomes NULL
-            */
-            if ($birth == '') {
+            if ($birth === '') {
                 $birth = null;
             }
 
@@ -209,38 +267,7 @@ if (isset($_POST['save_family'])) {
             $business_address = "";
             $telephone = "";
 
-
-            /* ==========================
-               INSERT CHILD
-            ========================== */
-
-            $stmt = $conn->prepare("
-                INSERT INTO personnel_family
-                (
-                    personnel_id,
-                    relationship,
-                    last_name,
-                    first_name,
-                    middle_name,
-                    suffix,
-                    occupation,
-                    employer,
-                    business_address,
-                    telephone,
-                    birth_date
-                )
-                VALUES
-                (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-                )
-            ");
-
-            if (!$stmt) {
-                die("Child prepare failed: " . $conn->error);
-            }
-
-
-            $stmt->bind_param(
+            $childStmt->bind_param(
                 "issssssssss",
 
                 $personnel_id,
@@ -259,27 +286,23 @@ if (isset($_POST['save_family'])) {
                 $birth
             );
 
-
-            if (!$stmt->execute()) {
-                die("Child save failed: " . $stmt->error);
+            if (!$childStmt->execute()) {
+                die("Child save failed: " . $childStmt->error);
             }
-
-            $stmt->close();
         }
+
+        $childStmt->close();
     }
 
 
-    /* ==========================
+    /* =====================================================
        SUCCESS
-    ========================== */
+    ===================================================== */
 
     echo "
     <script>
-
         alert('Family Background Saved Successfully.');
-
-        window.location='personnel.php?id=" . $personnel_id . "';
-
+        window.location.href = 'personnel.php?id=" . $personnel_id . "';
     </script>
     ";
 
@@ -287,41 +310,30 @@ if (isset($_POST['save_family'])) {
 }
 
 
-/* ==========================
+/* =========================================================
    INSERT OR UPDATE PERSON
-========================== */
+========================================================= */
 
 function savePerson(
-
     $conn,
-
     $personnel_id,
-
     $relationship,
 
     $last,
-
     $first,
-
     $middle,
-
     $suffix,
 
     $occupation,
-
     $employer,
-
     $business,
-
     $telephone,
-
     $birth
-
 ) {
 
-    /* ==========================
+    /* =====================================================
        CHECK EXISTING RECORD
-    ========================== */
+    ===================================================== */
 
     $check = $conn->prepare("
         SELECT id
@@ -341,16 +353,14 @@ function savePerson(
         $relationship
     );
 
-    if (!$check->execute()) {
-        die("Check family failed: " . $check->error);
-    }
+    $check->execute();
 
     $result = $check->get_result();
 
 
-    /* ==========================
+    /* =====================================================
        UPDATE EXISTING
-    ========================== */
+    ===================================================== */
 
     if ($result->num_rows > 0) {
 
@@ -373,6 +383,7 @@ function savePerson(
                 telephone = ?,
                 birth_date = ?
             WHERE id = ?
+            AND personnel_id = ?
         ");
 
         if (!$stmt) {
@@ -380,7 +391,7 @@ function savePerson(
         }
 
         $stmt->bind_param(
-            "sssssssssi",
+            "sssssssssii",
 
             $last,
             $first,
@@ -394,7 +405,8 @@ function savePerson(
 
             $birth,
 
-            $family_id
+            $family_id,
+            $personnel_id
         );
 
         if (!$stmt->execute()) {
@@ -406,9 +418,9 @@ function savePerson(
     }
 
 
-    /* ==========================
+    /* =====================================================
        INSERT NEW
-    ========================== */
+    ===================================================== */
 
     else {
 
@@ -430,9 +442,7 @@ function savePerson(
                 birth_date
             )
             VALUES
-            (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -467,23 +477,33 @@ function savePerson(
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
 
 <title>Family Background</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<link
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+rel="stylesheet">
 
 <script>
-if(localStorage.getItem("theme") === "dark"){
+if (localStorage.getItem("theme") === "dark") {
     document.documentElement.classList.add("dark-mode");
 }
 </script>
+
 <style>
 
 body{
@@ -515,6 +535,21 @@ body{
     margin-bottom:15px;
     background:white;
 }
+
+.form-control{
+    width:100%;
+}
+
+input[type="date"]{
+    width:100%;
+    min-height:38px;
+}
+
+/* Prevent date input from becoming too small */
+.date-field{
+    min-width:0;
+}
+
 .dark-mode{
     background:#0f172a;
     color:#fff;
@@ -525,30 +560,19 @@ body{
     color:#fff;
 }
 
-.dark-mode .card-header{
-    background:#1e293b !important;
-    color:#fff;
-}
-
 .dark-mode .section-title{
     background:#2563eb;
-    color:#fff;
 }
 
 .dark-mode label{
     color:#fff;
 }
 
-.dark-mode .form-control,
-.dark-mode .form-select{
+.dark-mode .form-control{
     background:#334155;
     color:#fff;
     border:1px solid #475569;
 }
-
-/* =========================
-   DARK MODE - CHILD CARD
-========================= */
 
 .dark-mode .child-card{
     background:#1e293b;
@@ -556,22 +580,54 @@ body{
     color:#fff;
 }
 
-.dark-mode .child-card label{
-    color:#fff;
-}
-
 .dark-mode .child-card .form-control{
     background:#334155;
-    border:1px solid #475569;
     color:#fff;
+    border:1px solid #475569;
 }
 
-.dark-mode .child-card .form-control:focus{
-    background:#334155;
-    color:#fff;
-    border-color:#60a5fa;
-    box-shadow:none;
+.dark-mode input[type="date"]{
+    color-scheme:dark;
 }
+
+/* Mobile */
+@media (max-width: 575.98px){
+
+    .container{
+        padding-left:10px !important;
+        padding-right:10px !important;
+    }
+
+    .card-body{
+        padding:15px;
+    }
+
+    .section-body{
+        padding:15px;
+    }
+
+    .section-title{
+        padding:12px 15px;
+    }
+
+    .section-title .btn{
+        font-size:12px;
+    }
+
+    input[type="date"]{
+        min-height:42px;
+    }
+
+    .text-end{
+        text-align:stretch !important;
+    }
+
+    .text-end .btn{
+        width:100%;
+        margin-top:8px;
+    }
+}
+
 </style>
 
 </head>
@@ -585,7 +641,7 @@ body{
 <div class="card-header bg-primary text-white">
 
 <h4 class="mb-0">
-<i class="fas fa-people-roof"></i>
+<i class="fas fa-people-roof me-2"></i>
 Family Background
 </h4>
 
@@ -594,268 +650,278 @@ Family Background
 <div class="card-body">
 
 <form method="POST">
+
+<!-- =====================================================
+     SPOUSE
+===================================================== -->
+
 <div class="mb-4">
 
 <div class="section-title">
-
 Spouse
-
 </div>
 
 <div class="section-body">
 
 <div class="row">
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Last Name</label>
 <input type="text"
 name="spouse_last_name"
 class="form-control"
-value="<?= $spouse['last_name'] ?? '' ?>">
+value="<?= e($spouse['last_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>First Name</label>
 <input type="text"
 name="spouse_first_name"
 class="form-control"
-value="<?= $spouse['first_name'] ?? '' ?>">
+value="<?= e($spouse['first_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Middle Name</label>
 <input type="text"
 name="spouse_middle_name"
 class="form-control"
-value="<?= $spouse['middle_name'] ?? '' ?>">
+value="<?= e($spouse['middle_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Suffix</label>
 <input type="text"
 name="spouse_suffix"
 class="form-control"
-value="<?= $spouse['suffix'] ?? '' ?>">
+value="<?= e($spouse['suffix'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Occupation</label>
 <input type="text"
 name="spouse_occupation"
 class="form-control"
-value="<?= $spouse['occupation'] ?? '' ?>">
+value="<?= e($spouse['occupation'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Employer / Business</label>
 <input type="text"
 name="spouse_employer"
 class="form-control"
-value="<?= $spouse['employer'] ?? '' ?>">
+value="<?= e($spouse['employer'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Business Address</label>
 <input type="text"
 name="spouse_business_address"
 class="form-control"
-value="<?= $spouse['business_address'] ?? '' ?>">
+value="<?= e($spouse['business_address'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Telephone</label>
 <input type="text"
 name="spouse_telephone"
 class="form-control"
-value="<?= $spouse['telephone'] ?? '' ?>">
+value="<?= e($spouse['telephone'] ?? '') ?>">
+</div>
+
+<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
+<label>Date of Birth</label>
+<input
+type="date"
+name="spouse_birth_date"
+class="form-control"
+value="<?= formatDateForInput($spouse['birth_date'] ?? '') ?>">
 </div>
 
 </div>
-
+</div>
 </div>
 
-</div>
+
+<!-- =====================================================
+     FATHER
+===================================================== -->
+
 <div class="mb-4">
 
 <div class="section-title">
-
 Father
-
 </div>
 
 <div class="section-body">
 
 <div class="row">
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Last Name</label>
-<input
-type="text"
+<input type="text"
 name="father_last_name"
 class="form-control"
-value="<?= $father['last_name'] ?? '' ?>">
+value="<?= e($father['last_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>First Name</label>
-<input
-type="text"
+<input type="text"
 name="father_first_name"
 class="form-control"
-value="<?= $father['first_name'] ?? '' ?>">
+value="<?= e($father['first_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Middle Name</label>
-<input
-type="text"
+<input type="text"
 name="father_middle_name"
 class="form-control"
-value="<?= $father['middle_name'] ?? '' ?>">
+value="<?= e($father['middle_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Suffix</label>
-<input
-type="text"
+<input type="text"
 name="father_suffix"
 class="form-control"
-value="<?= $father['suffix'] ?? '' ?>">
+value="<?= e($father['suffix'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Occupation</label>
 <input type="text"
 name="father_occupation"
 class="form-control"
-value="<?= $father['occupation'] ?? '' ?>">
+value="<?= e($father['occupation'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Employer / Business</label>
 <input type="text"
 name="father_employer"
 class="form-control"
-value="<?= $father['employer'] ?? '' ?>">
+value="<?= e($father['employer'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Business Address</label>
 <input type="text"
 name="father_business_address"
 class="form-control"
-value="<?= $father['business_address'] ?? '' ?>">
+value="<?= e($father['business_address'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Telephone</label>
 <input type="text"
 name="father_telephone"
 class="form-control"
-value="<?= $father['telephone'] ?? '' ?>">
+value="<?= e($father['telephone'] ?? '') ?>">
 </div>
 
-<div class="col-md-2 mb-3">
+<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
 <label>Date of Birth</label>
 <input
 type="date"
-name="father_birth_date[]"
+name="father_birth_date"
 class="form-control"
-value="<?= $father['birth_date'] ?>">
-
+value="<?= formatDateForInput($father['birth_date'] ?? '') ?>">
 </div>
 
 </div>
-
+</div>
 </div>
 
-</div>
+
+<!-- =====================================================
+     MOTHER
+===================================================== -->
+
 <div class="mb-4">
 
 <div class="section-title">
-
 Mother's Maiden Name
-
 </div>
 
 <div class="section-body">
 
 <div class="row">
 
-<div class="col-md-4 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Last Name</label>
-<input
-type="text"
+<input type="text"
 name="mother_last_name"
 class="form-control"
-value="<?= $mother['last_name'] ?? '' ?>">
+value="<?= e($mother['last_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-4 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>First Name</label>
-<input
-type="text"
+<input type="text"
 name="mother_first_name"
 class="form-control"
-value="<?= $mother['first_name'] ?? '' ?>">
+value="<?= e($mother['first_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-4 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Middle Name</label>
-<input
-type="text"
+<input type="text"
 name="mother_middle_name"
 class="form-control"
-value="<?= $mother['middle_name'] ?? '' ?>">
+value="<?= e($mother['middle_name'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Occupation</label>
 <input type="text"
 name="mother_occupation"
 class="form-control"
-value="<?= $mother['occupation'] ?? '' ?>">
+value="<?= e($mother['occupation'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Employer / Business</label>
 <input type="text"
 name="mother_employer"
 class="form-control"
-value="<?= $mother['employer'] ?? '' ?>">
+value="<?= e($mother['employer'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Business Address</label>
 <input type="text"
 name="mother_business_address"
 class="form-control"
-value="<?= $mother['business_address'] ?? '' ?>">
+value="<?= e($mother['business_address'] ?? '') ?>">
 </div>
 
-<div class="col-md-3 mb-3">
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Telephone</label>
 <input type="text"
 name="mother_telephone"
 class="form-control"
-value="<?= $mother['telephone'] ?? '' ?>">
+value="<?= e($mother['telephone'] ?? '') ?>">
 </div>
 
-<div class="col-md-2 mb-3">
+<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
 <label>Date of Birth</label>
 <input
 type="date"
-name="mother_birth_date[]"
+name="mother_birth_date"
 class="form-control"
-value="<?= $mother['birth_date'] ?>">
-
+value="<?= formatDateForInput($mother['birth_date'] ?? '') ?>">
 </div>
 
 </div>
-
+</div>
 </div>
 
-</div>
+
+<!-- =====================================================
+     CHILDREN
+===================================================== -->
 
 <div class="mb-4">
 
@@ -872,7 +938,6 @@ class="btn btn-light btn-sm"
 onclick="addChild()">
 
 <i class="fas fa-plus"></i>
-
 Add Child
 
 </button>
@@ -883,74 +948,57 @@ Add Child
 
 <div id="childrenContainer">
 
-<?php
-if(count($children)>0){
+<?php if (count($children) > 0): ?>
 
-foreach($children as $child){
-?>
+<?php foreach ($children as $child): ?>
 
 <div class="child-card">
 
 <div class="row">
 
-<div class="col-md-3 mb-3">
-
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Last Name</label>
-
 <input
 type="text"
 name="child_last_name[]"
 class="form-control"
-value="<?= $child['last_name'] ?>">
-
+value="<?= e($child['last_name']) ?>">
 </div>
 
-<div class="col-md-3 mb-3">
-
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>First Name</label>
-
 <input
 type="text"
 name="child_first_name[]"
 class="form-control"
-value="<?= $child['first_name'] ?>">
-
+value="<?= e($child['first_name']) ?>">
 </div>
 
-<div class="col-md-2 mb-3">
-
+<div class="col-12 col-sm-6 col-md-2 mb-3">
 <label>Middle Name</label>
-
 <input
 type="text"
 name="child_middle_name[]"
 class="form-control"
-value="<?= $child['middle_name'] ?>">
-
+value="<?= e($child['middle_name']) ?>">
 </div>
 
-<div class="col-md-2 mb-3">
-
+<div class="col-12 col-sm-6 col-md-2 mb-3">
 <label>Suffix</label>
-
 <input
 type="text"
 name="child_suffix[]"
 class="form-control"
-value="<?= $child['suffix'] ?>">
-
+value="<?= e($child['suffix']) ?>">
 </div>
 
-<div class="col-md-2 mb-3">
-
+<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
 <label>Date of Birth</label>
-
 <input
 type="date"
 name="child_birth_date[]"
 class="form-control"
-value="<?= $child['birth_date'] ?>">
-
+value="<?= formatDateForInput($child['birth_date'] ?? '') ?>">
 </div>
 
 <div class="col-12 text-end">
@@ -961,7 +1009,6 @@ class="btn btn-danger btn-sm"
 onclick="removeChild(this)">
 
 <i class="fas fa-trash"></i>
-
 Remove
 
 </button>
@@ -969,84 +1016,67 @@ Remove
 </div>
 
 </div>
-
 </div>
 
-<?php
-}
-}else{
-?>
+<?php endforeach; ?>
+
+<?php else: ?>
 
 <div class="child-card">
 
 <div class="row">
 
-<div class="col-md-3 mb-3">
-
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>Last Name</label>
-
 <input
 type="text"
 name="child_last_name[]"
 class="form-control">
-
 </div>
 
-<div class="col-md-3 mb-3">
-
+<div class="col-12 col-sm-6 col-md-3 mb-3">
 <label>First Name</label>
-
 <input
 type="text"
 name="child_first_name[]"
 class="form-control">
-
 </div>
 
-<div class="col-md-2 mb-3">
-
+<div class="col-12 col-sm-6 col-md-2 mb-3">
 <label>Middle Name</label>
-
 <input
 type="text"
 name="child_middle_name[]"
 class="form-control">
-
 </div>
 
-<div class="col-md-2 mb-3">
-
+<div class="col-12 col-sm-6 col-md-2 mb-3">
 <label>Suffix</label>
-
 <input
 type="text"
 name="child_suffix[]"
 class="form-control">
-
 </div>
 
-<div class="col-md-2 mb-3">
-
+<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
 <label>Date of Birth</label>
-
 <input
 type="date"
 name="child_birth_date[]"
 class="form-control">
-
 </div>
 
 </div>
-
 </div>
 
-<?php } ?>
+<?php endif; ?>
 
 </div>
-
+</div>
 </div>
 
-</div>
+
+<!-- BUTTONS -->
 
 <div class="text-end mt-4">
 
@@ -1055,7 +1085,6 @@ href="personnel.php?id=<?= $personnel_id ?>"
 class="btn btn-secondary">
 
 <i class="fas fa-arrow-left"></i>
-
 Back
 
 </a>
@@ -1066,7 +1095,6 @@ name="save_family"
 class="btn btn-primary">
 
 <i class="fas fa-save"></i>
-
 Save Family Background
 
 </button>
@@ -1076,119 +1104,107 @@ Save Family Background
 </form>
 
 </div>
-
+</div>
 </div>
 
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
 
 <script>
 
 function addChild(){
 
-const html = `
-<div class="child-card">
+    const html = `
+    <div class="child-card">
 
-<div class="row">
+        <div class="row">
 
-<div class="col-md-3 mb-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-3">
+                <label>Last Name</label>
+                <input
+                    type="text"
+                    name="child_last_name[]"
+                    class="form-control">
+            </div>
 
-<label>Last Name</label>
+            <div class="col-12 col-sm-6 col-md-3 mb-3">
+                <label>First Name</label>
+                <input
+                    type="text"
+                    name="child_first_name[]"
+                    class="form-control">
+            </div>
 
-<input
-type="text"
-name="child_last_name[]"
-class="form-control">
+            <div class="col-12 col-sm-6 col-md-2 mb-3">
+                <label>Middle Name</label>
+                <input
+                    type="text"
+                    name="child_middle_name[]"
+                    class="form-control">
+            </div>
 
-</div>
+            <div class="col-12 col-sm-6 col-md-2 mb-3">
+                <label>Suffix</label>
+                <input
+                    type="text"
+                    name="child_suffix[]"
+                    class="form-control">
+            </div>
 
-<div class="col-md-3 mb-3">
+            <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
+                <label>Date of Birth</label>
+                <input
+                    type="date"
+                    name="child_birth_date[]"
+                    class="form-control">
+            </div>
 
-<label>First Name</label>
+            <div class="col-12 text-end">
 
-<input
-type="text"
-name="child_first_name[]"
-class="form-control">
+                <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    onclick="removeChild(this)">
 
-</div>
+                    <i class="fas fa-trash"></i>
+                    Remove
 
-<div class="col-md-2 mb-3">
+                </button>
 
-<label>Middle Name</label>
+            </div>
 
-<input
-type="text"
-name="child_middle_name[]"
-class="form-control">
+        </div>
+    </div>
+    `;
 
-</div>
-
-<div class="col-md-2 mb-3">
-
-<label>Suffix</label>
-
-<input
-type="text"
-name="child_suffix[]"
-class="form-control">
-
-</div>
-
-<div class="col-md-2 mb-3">
-
-<label>Date of Birth</label>
-
-<input
-type="date"
-name="child_birth_date[]"
-class="form-control">
-
-</div>
-
-<div class="col-12 text-end">
-
-<button
-type="button"
-class="btn btn-danger btn-sm"
-onclick="removeChild(this)">
-
-<i class="fas fa-trash"></i>
-
-Remove
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-`;
-
-document
-.getElementById("childrenContainer")
-.insertAdjacentHTML("beforeend", html);
-
+    document
+        .getElementById("childrenContainer")
+        .insertAdjacentHTML("beforeend", html);
 }
+
 
 function removeChild(btn){
 
-btn.closest(".child-card").remove();
+    const card = btn.closest(".child-card");
 
+    if(card){
+        card.remove();
+    }
 }
 
-</script>
 
-<script>
-document.addEventListener("DOMContentLoaded",function(){
+document.addEventListener("DOMContentLoaded", function(){
 
-    if(localStorage.getItem("theme")==="dark"){
+    if(localStorage.getItem("theme") === "dark"){
         document.body.classList.add("dark-mode");
     }
 
 });
+
 </script>
+
 </body>
 </html>
