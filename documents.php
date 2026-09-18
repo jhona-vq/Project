@@ -251,14 +251,14 @@ body{
 </div>
 
 <ul>
-<li><a href="dashboard.php"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-<li><a href="personnel.php"><i class="fas fa-users"></i> Personnel</a></li>
-<li><a href="contracts.php"><i class="fas fa-file-signature"></i> Contracts</a></li>
-<li><a href="documents.php"><i class="fas fa-folder-open"></i> Documents</a></li>
-<li><a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a></li>
-<li><a href="users.php"><i class="fas fa-user-cog"></i> User Management</a></li>
-<li><a href="settings.php"><i class="fas fa-cogs"></i> Settings</a></li>
-<li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    <li><a href="dashboard.php"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+    <li><a href="personnel.php"><i class="fas fa-users"></i> Personnel</a></li>
+    <li><a href="contracts.php"><i class="fas fa-file-signature"></i> Contracts</a></li>
+    <li><a href="documents.php"><i class="fas fa-folder-open"></i> Documents</a></li>
+    <li><a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a></li>
+    <li><a href="users.php"><i class="fas fa-user-cog"></i> User Management</a></li>
+    <li><a href="settings.php"><i class="fas fa-cogs"></i> Settings</a></li>
+    <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
 </ul>
 
 </div>
@@ -302,37 +302,37 @@ body{
 <!-- DOCUMENT TYPES -->
 <div class="row g-4">
 
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h6>Personal Files</h6>
+                <ul class="small">
+                    <li>Resume / PDS</li>
+                    <li>Birth Certificate</li>
+                    <li>Diploma</li>
+                </ul>
+        </div>
+    </div>
+
 <div class="col-md-3">
-<div class="card p-3">
-<h6>Personal Files</h6>
-<ul class="small">
-<li>Resume / PDS</li>
-<li>Birth Certificate</li>
-<li>Diploma</li>
-</ul>
-</div>
+    <div class="card p-3">
+        <h6>Work Documents</h6>
+            <ul class="small">
+                <li>Performance Rating</li>
+                <li>Training Certificates</li>
+                <li>Appointment</li>
+            </ul>
+    </div>
 </div>
 
 <div class="col-md-3">
-<div class="card p-3">
-<h6>Work Documents</h6>
-<ul class="small">
-<li>Performance Rating</li>
-<li>Training Certificates</li>
-<li>Appointment</li>
-</ul>
-</div>
-</div>
-
-<div class="col-md-3">
-<div class="card p-3">
-<h6>Clearances</h6>
-<ul class="small">
-<li>Medical Certificate</li>
-<li>NBI Clearance</li>
-<li>Other Clearances</li>
-</ul>
-</div>
+    <div class="card p-3">
+        <h6>Clearances</h6>
+            <ul class="small">
+                <li>Medical Certificate</li>
+                <li>NBI Clearance</li>
+                <li>Other Clearances</li>
+            </ul>
+    </div>
 </div>
 
 <div class="col-md-3">
@@ -376,15 +376,15 @@ body{
 <table class="table table-bordered">
 
 <thead class="table-dark">
-<tr>
-<th>Employee</th>
-<th>Document Type</th>
-<th>File Name</th>
-<th>Date Uploaded</th>
-<th>Version</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
+    <tr>
+        <th>Employee</th>
+        <th>Document Type</th>
+        <th>File Name</th>
+        <th>Date Uploaded</th>
+        <th>Version</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
 </thead>
 
 <tbody>
@@ -440,15 +440,15 @@ while($row = $result->fetch_assoc()){
 
 <tr>
 
-<td><?= $row['employee_name']; ?></td>
+    <td><?= $row['employee_name']; ?></td>
 
-<td><?= $row['document_type']; ?></td>
+    <td><?= $row['document_type']; ?></td>
 
-<td><?= $row['file_name']; ?></td>
+    <td><?= $row['file_name']; ?></td>
 
-<td><?= $row['upload_date']; ?></td>
+    <td><?= $row['upload_date']; ?></td>
 
-<td><?= $row['version']; ?></td>
+    <td><?= $row['version']; ?></td>
 
 <?php
 $badge = "success";
@@ -461,33 +461,49 @@ elseif($row['status'] == 'Terminating Soon'){
 }
 ?>
 
-<td>
-<span class="badge bg-<?= $badge; ?>">
-<?= $row['status']; ?>
-</span>
-</td>
+<td class="text-nowrap">
 
-<td>
+    <!-- VIEW -->
+    <a href="view_document.php?id=<?= (int)$row['id']; ?>"
+       class="btn btn-info btn-sm"
+       title="View Document">
+        <i class="fas fa-eye"></i>
+    </a>
 
-<a href="view_document.php?id=<?= $row['id']; ?>"
-class="btn btn-info btn-sm">
-<i class="fas fa-eye"></i>
-</a>
+    <?php
+    if(
+        isset($_SESSION['role']) &&
+        (
+            $_SESSION['role'] === 'System Administrator' ||
+            $_SESSION['role'] === 'HR Administrator'
+        )
+    ):
+    ?>
 
-<?php if($_SESSION['role'] === 'System Administrator' || $_SESSION['role'] === 'HR Administrator'){ ?>
-<a href="uploads/documents/<?= $row['file_name']; ?>"
-class="btn btn-success btn-sm"
-download>
-<i class="fas fa-download"></i>
-</a>
+        <!-- DOWNLOAD -->
+        <a href="uploads/document/<?= htmlspecialchars($row['file_name']); ?>"
+           class="btn btn-success btn-sm"
+           download
+           title="Download Document">
+            <i class="fas fa-download"></i>
+        </a>
 
-<a href="delete_document.php?id=<?= $row['id']; ?>"
-class="btn btn-danger btn-sm"
-onclick="return confirm('Delete Document?')">
-<i class="fas fa-trash"></i>
-</a>
+        <!-- EDIT -->
+        <a href="edit_document.php?id=<?= (int)$row['id']; ?>"
+           class="btn btn-warning btn-sm"
+           title="Edit Document">
+            <i class="fas fa-edit"></i>
+        </a>
 
-<?php } ?>
+        <!-- DELETE -->
+        <a href="delete_document.php?id=<?= (int)$row['id']; ?>"
+           class="btn btn-danger btn-sm"
+           title="Delete Document"
+           onclick="return confirm('Are you sure you want to delete this document?');">
+            <i class="fas fa-trash"></i>
+        </a>
+
+    <?php endif; ?>
 
 </td>
 
@@ -499,35 +515,35 @@ onclick="return confirm('Delete Document?')">
 
 </table>
 
-<nav class="mt-3">
-<ul class="pagination justify-content-center">
+    <nav class="mt-3">
+    <ul class="pagination justify-content-center">
 
-<?php if($page_docs > 1){ ?>
-<li class="page-item">
-<a class="page-link"
-href="?page_docs=<?= $page_docs-1; ?>&search=<?= $search; ?>">
-Previous
-</a>
+    <?php if($page_docs > 1){ ?>
+    <li class="page-item">
+    <a class="page-link"
+        href="?page_docs=<?= $page_docs-1; ?>&search=<?= $search; ?>">
+        Previous
+    </a>
 </li>
 <?php } ?>
 
 <?php
-for($i=1; $i<=$total_docs_pages; $i++){
+    for($i=1; $i<=$total_docs_pages; $i++){
 ?>
-<li class="page-item <?= ($i==$page_docs)?'active':''; ?>">
-<a class="page-link"
-href="?page_docs=<?= $i; ?>&search=<?= $search; ?>">
-<?= $i; ?>
-</a>
+    <li class="page-item <?= ($i==$page_docs)?'active':''; ?>">
+    <a class="page-link"
+        href="?page_docs=<?= $i; ?>&search=<?= $search; ?>">
+        <?= $i; ?>
+    </a>
 </li>
 <?php } ?>
 
-<?php if($page_docs < $total_docs_pages){ ?>
-<li class="page-item">
-<a class="page-link"
-href="?page_docs=<?= $page_docs+1; ?>&search=<?= $search; ?>">
-Next
-</a>
+    <?php if($page_docs < $total_docs_pages){ ?>
+    <li class="page-item">
+    <a class="page-link"
+        href="?page_docs=<?= $page_docs+1; ?>&search=<?= $search; ?>">
+        Next
+    </a>
 </li>
 <?php } ?>
 
@@ -546,12 +562,12 @@ Next
 <table class="table">
 
 <thead>
-<tr>
-<th>Employee</th>
-<th>Document</th>
-<th>Termination Date</th>
-<th>Status</th>
-</tr>
+    <tr>
+        <th>Employee</th>
+        <th>Document</th>
+        <th>Termination Date</th>
+        <th>Status</th>
+    </tr>
 </thead>
 
 <tbody>
@@ -621,17 +637,17 @@ if($row['termination_date'] < $today){
 
 <tr>
 
-<td><?= $row['employee_name']; ?></td>
+    <td><?= $row['employee_name']; ?></td>
 
-<td><?= $row['document_type']; ?></td>
+    <td><?= $row['document_type']; ?></td>
 
-<td><?= $row['termination_date']; ?></td>
+    <td><?= $row['termination_date']; ?></td>
 
-<td>
-<span class="badge bg-<?= $badge; ?>">
-<?= $status; ?>
-</span>
-</td>
+    <td>
+        <span class="badge bg-<?= $badge; ?>">
+            <?= $status; ?>
+        </span>
+    </td>
 
 </tr>
 
@@ -642,35 +658,35 @@ if($row['termination_date'] < $today){
 </table>
 
 <nav class="mt-3">
-<ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-center">
 
-<?php if($page_exp > 1){ ?>
-<li class="page-item">
-<a class="page-link"
-href="?page_docs=<?= $page_docs ?? 1; ?>&page_exp=<?= $page_exp-1; ?>">
-Previous
-</a>
-</li>
+    <?php if($page_exp > 1){ ?>
+    <li class="page-item">
+        <a class="page-link"
+            href="?page_docs=<?= $page_docs ?? 1; ?>&page_exp=<?= $page_exp-1; ?>">
+            Previous
+        </a>
+    </li>
 <?php } ?>
 
 <?php
-for($i=1; $i<=$total_exp_pages; $i++){
+    for($i=1; $i<=$total_exp_pages; $i++){
 ?>
-<li class="page-item <?= ($i==$page_exp)?'active':''; ?>">
-<a class="page-link"
-href="?page_docs=<?= $page_docs ?? 1; ?>&page_exp=<?= $i; ?>">
-<?= $i; ?>
-</a>
-</li>
+    <li class="page-item <?= ($i==$page_exp)?'active':''; ?>">
+        <a class="page-link"
+            href="?page_docs=<?= $page_docs ?? 1; ?>&page_exp=<?= $i; ?>">
+            <?= $i; ?>
+        </a>
+    </li>
 <?php } ?>
 
-<?php if($page_exp < $total_exp_pages){ ?>
-<li class="page-item">
-<a class="page-link"
-href="?page_docs=<?= $page_docs ?? 1; ?>&page_exp=<?= $page_exp+1; ?>">
-Next
-</a>
-</li>
+    <?php if($page_exp < $total_exp_pages){ ?>
+    <li class="page-item">
+        <a class="page-link"
+            href="?page_docs=<?= $page_docs ?? 1; ?>&page_exp=<?= $page_exp+1; ?>">
+            Next
+        </a>
+    </li>
 <?php } ?>
 
 </ul>
@@ -688,8 +704,8 @@ Next
 <div class="modal-content">
 
 <div class="modal-header">
-<h5>Upload Document</h5>
-<button class="btn-close" data-bs-dismiss="modal"></button>
+    <h5>Upload Document</h5>
+    <button class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 
 <div class="modal-body">
@@ -726,28 +742,28 @@ ORDER BY first_name ASC
 <input type="hidden" name="employee_name" id="employeeName">
 
 <div class="col-md-6 mb-3">
-<label>Document Type</label>
-<select class="form-control" name="document_type" required>
-<option>Resume / PDS</option>
-<option>Birth Certificate</option>
-<option>Diploma</option>
-<option>Training Certificate</option>
-<option>Performance Rating</option>
-<option>Medical Certificate</option>
-<option>NBI Clearance</option>
-<option>Other</option>
-</select>
+    <label>Document Type</label>
+    <select class="form-control" name="document_type" required>
+        <option>Resume / PDS</option>
+        <option>Birth Certificate</option>
+        <option>Diploma</option>
+        <option>Training Certificate</option>
+        <option>Performance Rating</option>
+        <option>Medical Certificate</option>
+        <option>NBI Clearance</option>
+        <option>Other</option>
+    </select>
 </div>
 
 <div class="col-md-6 mb-3">
-<label>Upload File</label>
-<input type="file" class="form-control" name="document_file[]" multiple accept=".pdf,.doc,.jpg,.jpeg,.png" capture="environment" required>
-<small> You can select multiple files.</small>
+    <label>Upload File</label>
+    <input type="file" class="form-control" name="document_file[]" multiple accept=".pdf,.doc,.jpg,.jpeg,.png" capture="environment" required>
+    <small> You can select multiple files.</small>
 </div>
 
 <div class="col-md-6 mb-3">
-<label>Version</label>
-<input type="text" class="form-control" name="version" value="v1">
+    <label>Version</label>
+    <input type="text" class="form-control" name="version" value="v1">
 </div>
 
 <div class="col-md-6 mb-3">
