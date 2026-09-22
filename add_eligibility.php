@@ -247,7 +247,7 @@ body{
     overflow:hidden;
     background:#fff;
 }
-.elibility-header{
+.eligibility-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
