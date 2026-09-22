@@ -212,7 +212,7 @@ if ($valid_option === 'no_expiration') {
             alert('Eligibility Updated Successfully.');
 
             window.location.href =
-                'personnel.php?id=" . $personnel_id . "';
+                'edit_eligibility.php?id=" . $personnel_id . "';
 
         </script>
         ";
