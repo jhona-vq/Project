@@ -255,6 +255,7 @@ body{
     <li><a href="personnel.php"><i class="fas fa-users"></i> Personnel</a></li>
     <li><a href="contracts.php"><i class="fas fa-file-signature"></i> Contracts</a></li>
     <li><a href="documents.php"><i class="fas fa-folder-open"></i> Documents</a></li>
+    <li><a href="performance.php"><i class="fas fa-star"></i>i> Performance</a></li>
     <li><a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a></li>
     <li><a href="users.php"><i class="fas fa-user-cog"></i> User Management</a></li>
     <li><a href="settings.php"><i class="fas fa-cogs"></i> Settings</a></li>
