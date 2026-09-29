@@ -403,6 +403,12 @@ body.dark-mode .text-muted{
     </a>
 </li>
 
+ <li>
+     <a href="performance.php">
+         <i class="fas fa-star"></i>i> Performance
+     </a>
+ </li>
+
 <li>
    <a href="reports.php">
     <i class="fas fa-chart-bar"></i> Reports
