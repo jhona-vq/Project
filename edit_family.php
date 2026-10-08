@@ -656,873 +656,871 @@ input[type="date"] {
 <body>
 
 
-<div class="container py-4">
+    <div class="container py-4">
 
-<div class="card">
+        <div class="card">
 
 
-<div class="card-header bg-warning text-dark">
+            <div class="card-header bg-warning text-dark">
 
-<h4 class="mb-0">
+                <h4 class="mb-0">
 
-<i class="fas fa-edit me-2"></i>
+                    <i class="fas fa-edit me-2"></i>
 
-Edit Family Background
+                    Edit Family Background
 
-</h4>
-
-</div>
-
-
-<div class="card-body">
-
-
-<form method="POST">
-
-
-<!-- =====================================================
-     SPOUSE
-===================================================== -->
-
-<div class="mb-4">
-
-<div class="section-title">
-
-Spouse
-
-</div>
-
-
-<div class="section-body">
-
-<div class="row">
-
-
-<div class="col-md-3 mb-3">
-
-<label>Last Name</label>
-
-<input
-type="text"
-name="spouse_last_name"
-class="form-control"
-value="<?= e($spouse['last_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>First Name</label>
-
-<input
-type="text"
-name="spouse_first_name"
-class="form-control"
-value="<?= e($spouse['first_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Middle Name</label>
-
-<input
-type="text"
-name="spouse_middle_name"
-class="form-control"
-value="<?= e($spouse['middle_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Suffix</label>
-
-<input
-type="text"
-name="spouse_suffix"
-class="form-control"
-value="<?= e($spouse['suffix'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Occupation</label>
-
-<input
-type="text"
-name="spouse_occupation"
-class="form-control"
-value="<?= e($spouse['occupation'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Employer / Business</label>
-
-<input
-type="text"
-name="spouse_employer"
-class="form-control"
-value="<?= e($spouse['employer'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Business Address</label>
-
-<input
-type="text"
-name="spouse_business_address"
-class="form-control"
-value="<?= e($spouse['business_address'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Telephone</label>
-
-<input
-type="text"
-name="spouse_telephone"
-class="form-control"
-value="<?= e($spouse['telephone'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-2 mb-3">
-
-<label>Date of Birth</label>
-
-<input
-type="date"
-name="spouse_birth_date"
-class="form-control"
-value="<?= e(formatDateForInput($spouse['birth_date'] ?? '')) ?>">
-
-</div>
-
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- =====================================================
-     FATHER
-===================================================== -->
-
-<div class="mb-4">
-
-<div class="section-title">
-
-Father
-
-</div>
-
-
-<div class="section-body">
-
-<div class="row">
-
-
-<div class="col-md-3 mb-3">
-
-<label>Last Name</label>
-
-<input
-type="text"
-name="father_last_name"
-class="form-control"
-value="<?= e($father['last_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>First Name</label>
-
-<input
-type="text"
-name="father_first_name"
-class="form-control"
-value="<?= e($father['first_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Middle Name</label>
-
-<input
-type="text"
-name="father_middle_name"
-class="form-control"
-value="<?= e($father['middle_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Suffix</label>
-
-<input
-type="text"
-name="father_suffix"
-class="form-control"
-value="<?= e($father['suffix'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Occupation</label>
-
-<input
-type="text"
-name="father_occupation"
-class="form-control"
-value="<?= e($father['occupation'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Employer / Business</label>
-
-<input
-type="text"
-name="father_employer"
-class="form-control"
-value="<?= e($father['employer'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Business Address</label>
-
-<input
-type="text"
-name="father_business_address"
-class="form-control"
-value="<?= e($father['business_address'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Telephone</label>
-
-<input
-type="text"
-name="father_telephone"
-class="form-control"
-value="<?= e($father['telephone'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
-
-    <label>Date of Birth</label>
-
-    <input
-        type="date"
-        name="father_birth_date"
-        class="form-control"
-        value="<?= e(formatDateForInput($father['birth_date'] ?? '')) ?>">
-
-</div>
-
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- =====================================================
-     MOTHER
-===================================================== -->
-
-<div class="mb-4">
-
-<div class="section-title">
-
-Mother's Maiden Name
-
-</div>
-
-
-<div class="section-body">
-
-<div class="row">
-
-
-<div class="col-md-4 mb-3">
-
-<label>Last Name</label>
-
-<input
-type="text"
-name="mother_last_name"
-class="form-control"
-value="<?= e($mother['last_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-4 mb-3">
-
-<label>First Name</label>
-
-<input
-type="text"
-name="mother_first_name"
-class="form-control"
-value="<?= e($mother['first_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-4 mb-3">
-
-<label>Middle Name</label>
-
-<input
-type="text"
-name="mother_middle_name"
-class="form-control"
-value="<?= e($mother['middle_name'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Occupation</label>
-
-<input
-type="text"
-name="mother_occupation"
-class="form-control"
-value="<?= e($mother['occupation'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Employer / Business</label>
-
-<input
-type="text"
-name="mother_employer"
-class="form-control"
-value="<?= e($mother['employer'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Business Address</label>
-
-<input
-type="text"
-name="mother_business_address"
-class="form-control"
-value="<?= e($mother['business_address'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>Telephone</label>
-
-<input
-type="text"
-name="mother_telephone"
-class="form-control"
-value="<?= e($mother['telephone'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
-
-    <label>Date of Birth</label>
-
-    <input
-        type="date"
-        name="mother_birth_date"
-        class="form-control"
-        value="<?= e(formatDateForInput($mother['birth_date'] ?? '')) ?>">
-
-</div>
-
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- =====================================================
-     CHILDREN
-===================================================== -->
-
-<div class="mb-4">
-
-
-<div class="section-title d-flex justify-content-between align-items-center">
-
-<span>
-
-<i class="fas fa-child me-2"></i>
-
-Children
-
-</span>
-
-
-<button
-type="button"
-class="btn btn-light btn-sm"
-onclick="addChild()">
-
-<i class="fas fa-plus"></i>
-
-Add Child
-
-</button>
-
-</div>
-
-
-<div class="section-body">
-
-
-<div id="childrenContainer">
-
-
-<?php
-
-if (count($children) > 0) {
-
-    foreach ($children as $child) {
-
-?>
-
-
-<div class="child-card">
-
-
-<div class="row">
-
-
-<div class="col-md-3 mb-3">
-
-<label>Last Name</label>
-
-<input
-type="text"
-name="child_last_name[]"
-class="form-control"
-value="<?= e($child['last_name']) ?>">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>First Name</label>
-
-<input
-type="text"
-name="child_first_name[]"
-class="form-control"
-value="<?= e($child['first_name']) ?>">
-
-</div>
-
-
-<div class="col-md-2 mb-3">
-
-<label>Middle Name</label>
-
-<input
-type="text"
-name="child_middle_name[]"
-class="form-control"
-value="<?= e($child['middle_name']) ?>">
-
-</div>
-
-
-<div class="col-md-2 mb-3">
-
-<label>Suffix</label>
-
-<input
-type="text"
-name="child_suffix[]"
-class="form-control"
-value="<?= e($child['suffix']) ?>">
-
-</div>
-
-
-<div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
-
-<label>Date of Birth</label>
-
-<input
-type="date"
-name="child_birth_date[]"
-class="form-control"
-value="<?= formatDateForInput($child['birth_date'] ?? '') ?>">
-
-</div>
-
-
-<div class="col-12 text-end">
-
-<button
-type="button"
-class="btn btn-danger btn-sm"
-onclick="removeChild(this)">
-
-<i class="fas fa-trash"></i>
-
-Remove
-
-</button>
-
-</div>
-
-
-</div>
-
-</div>
-
-
-<?php
-
-    }
-
-} else {
-
-?>
-
-
-<div class="child-card">
-
-
-<div class="row">
-
-
-<div class="col-md-3 mb-3">
-
-<label>Last Name</label>
-
-<input
-type="text"
-name="child_last_name[]"
-class="form-control">
-
-</div>
-
-
-<div class="col-md-3 mb-3">
-
-<label>First Name</label>
-
-<input
-type="text"
-name="child_first_name[]"
-class="form-control">
-
-</div>
-
-
-<div class="col-md-2 mb-3">
-
-<label>Middle Name</label>
-
-<input
-type="text"
-name="child_middle_name[]"
-class="form-control">
-
-</div>
-
-
-<div class="col-md-2 mb-3">
-
-<label>Suffix</label>
-
-<input
-type="text"
-name="child_suffix[]"
-class="form-control">
-
-</div>
-
-
-<div class="col-md-2 mb-3">
-
-<label>Date of Birth</label>
-
-<input
-type="date"
-name="child_birth_date[]"
-class="form-control">
-
-</div>
-
-
-</div>
-
-</div>
-
-
-<?php
-
-}
-
-?>
-
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- =====================================================
-     BUTTONS
-===================================================== -->
-
-<div class="text-end mt-4">
-
-
-<a
-href="personnel.php?id=<?= $personnel_id ?>"
-class="btn btn-secondary">
-
-<i class="fas fa-arrow-left"></i>
-
-Back
-
-</a>
-
-
-<button
-type="submit"
-name="update_family"
-class="btn btn-primary">
-
-<i class="fas fa-save"></i>
-
-Update Family Background
-
-</button>
-
-
-</div>
-
-
-</form>
-
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<script
-src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
-
-
-<script>
-
-/* =========================================================
-   ADD CHILD
-========================================================= */
-
-function addChild(){
-
-    const html = `
-
-    <div class="child-card">
-
-        <div class="row">
-
-            <div class="col-md-3 mb-3">
-
-                <label>Last Name</label>
-
-                <input
-                    type="text"
-                    name="child_last_name[]"
-                    class="form-control">
+                </h4>
 
             </div>
 
 
-            <div class="col-md-3 mb-3">
-
-                <label>First Name</label>
-
-                <input
-                    type="text"
-                    name="child_first_name[]"
-                    class="form-control">
-
-            </div>
+            <div class="card-body">
 
 
-            <div class="col-md-2 mb-3">
-
-                <label>Middle Name</label>
-
-                <input
-                    type="text"
-                    name="child_middle_name[]"
-                    class="form-control">
-
-            </div>
+                <form method="POST">
 
 
-            <div class="col-md-2 mb-3">
+                    <!-- =====================================================
+                        SPOUSE
+                    ===================================================== -->
 
-                <label>Suffix</label>
+                    <div class="mb-4">
 
-                <input
-                    type="text"
-                    name="child_suffix[]"
-                    class="form-control">
+                        <div class="section-title">
 
-            </div>
+                            Spouse
 
-
-            <div class="col-md-2 mb-3">
-
-                <label>Date of Birth</label>
-
-                <input
-                    type="date"
-                    name="child_birth_date[]"
-                    class="form-control">
-
-            </div>
+                        </div>
 
 
-            <div class="col-12 text-end">
+                        <div class="section-body">
 
-                <button
-                    type="button"
-                    class="btn btn-danger btn-sm"
-                    onclick="removeChild(this)">
+                            <div class="row">
 
-                    <i class="fas fa-trash"></i>
 
-                    Remove
+                                <div class="col-md-3 mb-3">
 
-                </button>
+                                    <label>Last Name</label>
 
+                                    <input
+                                        type="text"
+                                        name="spouse_last_name"
+                                        class="form-control"
+                                    value="<?= e($spouse['last_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>First Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="spouse_first_name"
+                                        class="form-control"
+                                    value="<?= e($spouse['first_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Middle Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="spouse_middle_name"
+                                        class="form-control"
+                                    value="<?= e($spouse['middle_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Suffix</label>
+
+                                    <input
+                                        type="text"
+                                        name="spouse_suffix"
+                                        class="form-control"
+                                    value="<?= e($spouse['suffix'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Occupation</label>
+
+                                    <input
+                                        type="text"
+                                        name="spouse_occupation"
+                                        class="form-control"
+                                    value="<?= e($spouse['occupation'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Employer / Business</label>
+
+                                    <input
+                                        type="text"
+                                        name="spouse_employer"
+                                        class="form-control"
+                                    value="<?= e($spouse['employer'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Business Address</label>
+
+                                    <input
+                                        type="text"
+                                        name="spouse_business_address"
+                                        class="form-control"
+                                    value="<?= e($spouse['business_address'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Telephone</label>
+
+                                    <input
+                                        type="text"
+                                        name="spouse_telephone"
+                                        class="form-control"
+                                    value="<?= e($spouse['telephone'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-2 mb-3">
+
+                                    <label>Date of Birth</label>
+
+                                    <input
+                                        type="date"
+                                        name="spouse_birth_date"
+                                        class="form-control"
+                                    value="<?= e(formatDateForInput($spouse['birth_date'] ?? '')) ?>">
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =====================================================
+                        FATHER
+                    ===================================================== -->
+
+                    <div class="mb-4">
+
+                        <div class="section-title">
+
+                            Father
+
+                        </div>
+
+
+                        <div class="section-body">
+
+                            <div class="row">
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Last Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_last_name"
+                                        class="form-control"
+                                    value="<?= e($father['last_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>First Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_first_name"
+                                        class="form-control"
+                                    value="<?= e($father['first_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Middle Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_middle_name"
+                                        class="form-control"
+                                    value="<?= e($father['middle_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Suffix</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_suffix"
+                                        class="form-control"
+                                    value="<?= e($father['suffix'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Occupation</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_occupation"
+                                        class="form-control"
+                                    value="<?= e($father['occupation'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Employer / Business</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_employer"
+                                        class="form-control"
+                                    value="<?= e($father['employer'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Business Address</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_business_address"
+                                        class="form-control"
+                                    value="<?= e($father['business_address'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Telephone</label>
+
+                                    <input
+                                        type="text"
+                                        name="father_telephone"
+                                        class="form-control"
+                                    value="<?= e($father['telephone'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
+
+                                    <label>Date of Birth</label>
+
+                                    <input
+                                        type="date"
+                                        name="father_birth_date"
+                                        class="form-control"
+                                    value="<?= e(formatDateForInput($father['birth_date'] ?? '')) ?>">
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =====================================================
+                        MOTHER
+                    ===================================================== -->
+
+                    <div class="mb-4">
+
+                        <div class="section-title">
+
+                            Mother's Maiden Name
+
+                        </div>
+
+
+                        <div class="section-body">
+
+                            <div class="row">
+
+
+                                <div class="col-md-4 mb-3">
+
+                                    <label>Last Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="mother_last_name"
+                                        class="form-control"
+                                    value="<?= e($mother['last_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-4 mb-3">
+
+                                    <label>First Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="mother_first_name"
+                                        class="form-control"
+                                    value="<?= e($mother['first_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-4 mb-3">
+
+                                    <label>Middle Name</label>
+
+                                    <input
+                                        type="text"
+                                        name="mother_middle_name"
+                                        class="form-control"
+                                    value="<?= e($mother['middle_name'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Occupation</label>
+
+                                    <input
+                                        type="text"
+                                        name="mother_occupation"
+                                        class="form-control"
+                                    value="<?= e($mother['occupation'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Employer / Business</label>
+
+                                    <input
+                                        type="text"
+                                        name="mother_employer"
+                                        class="form-control"
+                                    value="<?= e($mother['employer'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Business Address</label>
+
+                                    <input
+                                        type="text"
+                                        name="mother_business_address"
+                                        class="form-control"
+                                    value="<?= e($mother['business_address'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Telephone</label>
+
+                                    <input
+                                        type="text"
+                                        name="mother_telephone"
+                                        class="form-control"
+                                    value="<?= e($mother['telephone'] ?? '') ?>">
+
+                                </div>
+
+
+                                <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
+
+                                    <label>Date of Birth</label>
+
+                                    <input
+                                        type="date"
+                                        name="mother_birth_date"
+                                        class="form-control"
+                                    value="<?= e(formatDateForInput($mother['birth_date'] ?? '')) ?>">
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =====================================================
+                        CHILDREN
+                    ===================================================== -->
+
+                    <div class="mb-4">
+
+
+                        <div class="section-title d-flex justify-content-between align-items-center">
+
+                            <span>
+
+                                <i class="fas fa-child me-2"></i>
+
+                                Children
+
+                            </span>
+
+
+                            <button
+                                type="button"
+                                class="btn btn-light btn-sm"
+                                onclick="addChild()">
+
+                                <i class="fas fa-plus"></i>
+
+                                Add Child
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="section-body">
+
+
+                            <div id="childrenContainer">
+
+
+                                <?php
+
+                                    if (count($children) > 0) {
+
+                                        foreach ($children as $child) {
+
+                                ?>
+
+
+                                <div class="child-card">
+
+
+                                    <div class="row">
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Last Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_last_name[]"
+                                                class="form-control"
+                                            value="<?= e($child['last_name']) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>First Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_first_name[]"
+                                                class="form-control"
+                                            value="<?= e($child['first_name']) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-2 mb-3">
+
+                                            <label>Middle Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_middle_name[]"
+                                                class="form-control"
+                                            value="<?= e($child['middle_name']) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-2 mb-3">
+
+                                            <label>Suffix</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_suffix[]"
+                                                class="form-control"
+                                            value="<?= e($child['suffix']) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-3 date-field">
+
+                                            <label>Date of Birth</label>
+
+                                            <input
+                                                type="date"
+                                                name="child_birth_date[]"
+                                                class="form-control"
+                                            value="<?= formatDateForInput($child['birth_date'] ?? '') ?>">
+
+                                        </div>
+
+
+                                        <div class="col-12 text-end">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="removeChild(this)">
+
+                                                <i class="fas fa-trash"></i>
+
+                                                Remove
+
+                                            </button>
+
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                                <?php
+
+                                    }
+
+                                } else {
+
+                                ?>
+
+
+                                <div class="child-card">
+
+
+                                    <div class="row">
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Last Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_last_name[]"
+                                            class="form-control">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>First Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_first_name[]"
+                                            class="form-control">
+
+                                        </div>
+
+
+                                        <div class="col-md-2 mb-3">
+
+                                            <label>Middle Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_middle_name[]"
+                                            class="form-control">
+
+                                        </div>
+
+
+                                        <div class="col-md-2 mb-3">
+
+                                            <label>Suffix</label>
+
+                                            <input
+                                                type="text"
+                                                name="child_suffix[]"
+                                            class="form-control">
+
+                                        </div>
+
+
+                                        <div class="col-md-2 mb-3">
+
+                                            <label>Date of Birth</label>
+
+                                            <input
+                                                type="date"
+                                                name="child_birth_date[]"
+                                            class="form-control">
+
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+
+                                <?php
+
+                                }
+
+                                ?>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =====================================================
+                        BUTTONS
+                    ===================================================== -->
+
+                    <div class="text-end mt-4">
+
+
+                        <a
+                            href="personnel.php?id=<?= $personnel_id ?>"
+                            class="btn btn-secondary">
+
+                            <i class="fas fa-arrow-left"></i>
+
+                            Back
+
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            name="update_family"
+                            class="btn btn-primary">
+
+                            i class="fas fa-save"></i>
+
+                            Update Family Background
+
+                        </button>
+                    </div>
+
+            
+
+
+                </form>
             </div>
 
         </div>
 
     </div>
 
-    `;
 
 
-    document
-        .getElementById("childrenContainer")
-        .insertAdjacentHTML(
-            "beforeend",
-            html
-        );
-
-}
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 
-/* =========================================================
-   REMOVE CHILD
-========================================================= */
+    <script>
 
-function removeChild(btn){
+    /* =========================================================
+        ADD CHILD
+    ========================================================= */
 
-    const card =
-        btn.closest(".child-card");
+    function addChild(){
 
-    if (card) {
+        const html = `
 
-        card.remove();
+            <div class="child-card">
 
-    }
+                <div class="row">
 
-}
+                    <div class="col-md-3 mb-3">
+
+                        <label>Last Name</label>
+
+                        <input
+                            type="text"
+                            name="child_last_name[]"
+                            class="form-control">
+
+                    </div>
 
 
-/* =========================================================
-   DARK MODE
-========================================================= */
+                    <div class="col-md-3 mb-3">
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function(){
+                        <label>First Name</label>
 
-        if (
-            localStorage.getItem("theme") === "dark"
-        ){
+                        <input
+                            type="text"
+                            name="child_first_name[]"
+                            class="form-control">
 
-            document.body.classList.add(
-                "dark-mode"
-            );
+                    </div>
+
+
+                    <div class="col-md-2 mb-3">
+
+                        <label>Middle Name</label>
+
+                        <input
+                            type="text"
+                            name="child_middle_name[]"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="col-md-2 mb-3">
+
+                        <label>Suffix</label>
+
+                        <input
+                            type="text"
+                            name="child_suffix[]"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="col-md-2 mb-3">
+
+                        <label>Date of Birth</label>
+
+                        <input
+                            type="date"
+                            name="child_birth_date[]"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="col-12 text-end">
+
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm"
+                            onclick="removeChild(this)">
+
+                            <i class="fas fa-trash"></i>
+
+                            Remove
+
+                        </button>
+
+                     </div>
+
+                </div>
+
+            </div>
+
+            `;
+
+
+            document
+                .getElementById("childrenContainer")
+                .insertAdjacentHTML(
+                    "beforeend",
+                    html
+                );
+
+            }
+
+
+            /* =========================================================
+                REMOVE CHILD
+            ========================================================= */
+
+            function removeChild(btn){
+
+            const card =
+                btn.closest(".child-card");
+
+                if (card) {
+
+                    card.remove();
+
+                }
+
+            }
+
+
+            /* =========================================================
+                DARK MODE
+            ========================================================= */
+
+            document.addEventListener(
+            "DOMContentLoaded",
+            function(){
+
+            if (
+                localStorage.getItem("theme") === "dark"
+            ){
+
+                document.body.classList.add(
+                    "dark-mode"
+                );
+
+            }
 
         }
-
-    }
-);
+    );
 
 </script>
 
