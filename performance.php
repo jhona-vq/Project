@@ -17,67 +17,179 @@ $total_pages = ceil($total_records / $limit);
 
 if(isset($_POST['save_evaluation'])){
 
-    $employee_id = mysqli_real_escape_string($conn,$_POST['employee_id']);
-    $employee_name = mysqli_real_escape_string($conn,$_POST['employee_name']);
-    $evaluation_period = mysqli_real_escape_string($conn,$_POST['evaluation_period']);
-    $rating = mysqli_real_escape_string($conn,$_POST['rating']);
-    $evaluator = mysqli_real_escape_string($conn,$_POST['evaluator']);
-    $comments = mysqli_real_escape_string($conn,$_POST['comments']);
+    $employee_id = trim($_POST['employee_id'] ?? '');
+    $employee_name = trim($_POST['employee_name'] ?? '');
+    $evaluation_period = trim($_POST['evaluation_period'] ?? '');
+    $rating = (float)($_POST['rating'] ?? 0);
+    $evaluator = trim($_POST['evaluator'] ?? '');
+    $comments = trim($_POST['comments'] ?? '');
 
-    $employee_id = $_POST['employee_id'];
-    $employee_name = $_POST['employee_name'];
-    $evaluation_period = $_POST['evaluation_period'];
-    $rating = $_POST['rating'];
-    $evaluator = $_POST['evaluator'];
-    $comments = $_POST['comments'];
 
-    if($rating >= 4.5){
-        $status = "Outstanding";
-    }
-    elseif($rating >= 3){
-        $status = "Average";
-    }
-    else{
-        $status = "Poor";
-    }
+/* =========================================================
+   VALIDATE EVALUATION PERIOD
+   ========================================================= */
 
-    $conn->query("
-    INSERT INTO performance(
-        employee_id,
-        employee_name,
-        evaluation_period,
-        rating,
-        evaluator,
-        comments,
-        status
-    )
-    VALUES(
-        '$employee_id',
-        '$employee_name',
-        '$evaluation_period',
-        '$rating',
-        '$evaluator',
-        '$comments',
-        '$status'
-    )
-    ");
-    $check = $conn->query("
-        SELECT *
-        FROM performance
-        WHERE employee_id='$employee_id'
-        AND evaluation_period='$evaluation_period'
-    ");
+$allowedPeriods = [
+    '2026-Q1',
+    '2026-Q2',
+    '2026-Q3',
+    '2026-Q4',
 
-    if($check->num_rows > 0){
+    '2027-Q1',
+    '2027-Q2',
+    '2027-Q3',
+    '2027-Q4',
+
+    '2028-Q1',
+    '2028-Q2',
+    '2028-Q3',
+    '2028-Q4'
+];
+
+if(!in_array($evaluation_period, $allowedPeriods, true)){
+
+    echo "
+    <script>
+        alert('Please select a valid Evaluation Period.');
+        window.location='performance.php';
+    </script>";
+
+    exit();
+}
+
+    /* =========================================================
+       VALIDATE RATING
+       ========================================================= */
+
+    if($rating < 1 || $rating > 5){
+
         echo "
         <script>
-        alert('Evaluation already exists for this period.');
-        window.location='performance.php';
+            alert('Please select a valid rating from 1 to 5.');
+            window.location='performance.php';
         </script>";
+
         exit();
     }
 
-    header('Location: performance.php');
+
+    /* =========================================================
+       GET ADJECTIVAL RATING
+       ========================================================= */
+
+    /* =========================================================
+   GET ADJECTIVAL RATING
+   ========================================================= */
+
+if($rating >= 4.50){
+
+    $status = "Outstanding";
+
+}
+elseif($rating >= 3.50){
+
+    $status = "Very Satisfactory";
+
+}
+elseif($rating >= 2.50){
+
+    $status = "Satisfactory";
+
+}
+elseif($rating >= 1.50){
+
+    $status = "Unsatisfactory";
+
+}
+else{
+
+    $status = "Poor";
+
+}
+
+
+    /* =========================================================
+       CHECK DUPLICATE BEFORE INSERT
+       One employee cannot have the same evaluation period twice.
+       ========================================================= */
+
+    $checkStmt = $conn->prepare("
+        SELECT id
+        FROM performance
+        WHERE employee_id = ?
+        AND evaluation_period = ?
+        LIMIT 1
+    ");
+
+    $checkStmt->bind_param(
+        "ss",
+        $employee_id,
+        $evaluation_period
+    );
+
+    $checkStmt->execute();
+
+    $check = $checkStmt->get_result();
+
+
+    if($check->num_rows > 0){
+
+        echo "
+        <script>
+            alert('Evaluation already exists for this employee and evaluation period.');
+            window.location='performance.php';
+        </script>";
+
+        exit();
+    }
+
+
+    /* =========================================================
+       INSERT PERFORMANCE RECORD
+       ========================================================= */
+
+    $stmt = $conn->prepare("
+        INSERT INTO performance
+        (
+            employee_id,
+            employee_name,
+            evaluation_period,
+            rating,
+            evaluator,
+            comments,
+            status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+
+    $stmt->bind_param(
+        "sssdsss",
+        $employee_id,
+        $employee_name,
+        $evaluation_period,
+        $rating,
+        $evaluator,
+        $comments,
+        $status
+    );
+
+
+    if(!$stmt->execute()){
+
+        die(
+            "Failed to save evaluation: " .
+            htmlspecialchars($stmt->error)
+        );
+
+    }
+
+
+    echo "
+    <script>
+        alert('Performance evaluation saved successfully.');
+        window.location='performance.php';
+    </script>";
+
     exit();
 }
 ?>
@@ -358,15 +470,45 @@ WHERE YEAR(created_at)=YEAR(CURDATE())
 <table class="table table-bordered">
 
 <thead class="table-dark">
+
 <tr>
-<th>Employee</th>
-<th>Evaluation Period</th>
-<th>Rating</th>
-<th>Evaluator</th>
-<th>Comments</th>
-<th>Status</th>
-<th>Action</th>
+
+    <th rowspan="2">Employee</th>
+
+    <th rowspan="2">
+        Evaluation Period
+    </th>
+
+    <th colspan="2" class="text-center">
+        Rating
+    </th>
+
+    <th rowspan="2">
+        Evaluator
+    </th>
+
+    <th rowspan="2">
+        Comments
+    </th>
+
+    <th rowspan="2">
+        Action
+    </th>
+
 </tr>
+
+<tr>
+
+    <th class="text-center">
+        Numerical
+    </th>
+
+    <th class="text-center">
+        Adjectival
+    </th>
+
+</tr>
+
 </thead>
 
 <tbody>
@@ -382,16 +524,28 @@ LIMIT $start, $limit
 
 while($row = $result->fetch_assoc()){
 
-if($row['status']=="Outstanding"){
-    $badge="success";
+    $ratingValue = (float)$row['rating'];
+
+if($ratingValue >= 4.50){
+    $adjectivalRating = "Outstanding";
+    $badge = "success";
 }
-elseif($row['status']=="Average"){
-    $badge="warning";
+elseif($ratingValue >= 3.50){
+    $adjectivalRating = "Very Satisfactory";
+    $badge = "primary";
+}
+elseif($ratingValue >= 2.50){
+    $adjectivalRating = "Satisfactory";
+    $badge = "info";
+}
+elseif($ratingValue >= 1.50){
+    $adjectivalRating = "Unsatisfactory";
+    $badge = "warning";
 }
 else{
-    $badge="danger";
+    $adjectivalRating = "Poor";
+    $badge = "danger";
 }
-
 ?>
 
 <tr>
@@ -400,17 +554,35 @@ else{
 
 <td><?= $row['evaluation_period']; ?></td>
 
-<td><?= $row['rating']; ?></td>
+<td class="text-center">
+    <strong class="fs-5">
+        <?php
+        $displayRating = number_format(
+            (float)$row['rating'],
+            2,
+            '.',
+            ''
+        );
+
+        $displayRating = rtrim(
+            rtrim($displayRating, '0'),
+            '.'
+        );
+
+        echo $displayRating;
+        ?>
+    </strong>
+</td>
+
+<td class="text-center">
+    <span class="badge bg-<?= $badge; ?>">
+        <?= htmlspecialchars($adjectivalRating); ?>
+    </span>
+</td>
 
 <td><?= $row['evaluator']; ?></td>
 
 <td><?= $row['comments']; ?></td>
-
-<td>
-<span class="badge bg-<?= $badge; ?>">
-<?= $row['status']; ?>
-</span>
-</td>
 
 <td>
 
@@ -531,58 +703,333 @@ echo "<li>".$row['employee_name']."</li>";
 
 </div>
 
-<!-- HISTORICAL -->
+<!-- =========================================================
+     HISTORICAL RATINGS
+========================================================= -->
+
 <div class="card mt-4 p-3">
 
-<h5>Historical Ratings</h5>
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
 
-<table class="table table-striped">
+        <div>
+            <h5 class="mb-1">
+                <i class="fas fa-chart-line me-2"></i>
+                Historical Ratings
+            </h5>
 
-<thead>
-<tr>
-<th>Employee</th>
-<th>2025</th>
-<th>2026</th>
-<th>2027</th>
-</tr>
-</thead>
+            <small class="text-muted">
+                Annual performance rating history
+            </small>
+        </div>
 
-<tbody>
+    </div>
 
-<?php
 
-$result = $conn->query("
-SELECT
-employee_name,
-AVG(rating) avg_rating
-FROM performance
-GROUP BY employee_name
-");
+    <div class="table-responsive">
 
-while($row=$result->fetch_assoc()){
+        <table class="table table-bordered table-hover align-middle">
 
-?>
+            <thead class="table-dark">
 
-<tr>
+                <tr>
 
-<td><?= $row['employee_name']; ?></td>
+                    <th>Employee</th>
 
-<td colspan="3">
-<?= number_format($row['avg_rating'],1); ?>
-</td>
+                    <th class="text-center">
+                        2026
+                    </th>
 
-</tr>
+                    <th class="text-center">
+                        2027
+                    </th>
 
-<?php } ?>
+                    <th class="text-center">
+                        2028
+                    </th>
 
-</tbody>
+                </tr>
 
-</table>
+            </thead>
 
-</div>
 
-</div>
-</div>
+            <tbody>
+
+            <?php
+
+            $historicalResult = $conn->query("
+
+                SELECT
+
+                    employee_id,
+
+                    employee_name,
+
+                    AVG(
+                        CASE
+                            WHEN evaluation_period LIKE '2026-%'
+                            THEN rating
+                        END
+                    ) AS rating_2026,
+
+                    AVG(
+                        CASE
+                            WHEN evaluation_period LIKE '2027-%'
+                            THEN rating
+                        END
+                    ) AS rating_2027,
+
+                    AVG(
+                        CASE
+                            WHEN evaluation_period LIKE '2028-%'
+                            THEN rating
+                        END
+                    ) AS rating_2028
+
+                FROM performance
+
+                GROUP BY
+                    employee_id,
+                    employee_name
+
+                ORDER BY
+                    employee_name ASC
+
+            ");
+
+
+            function getAdjectivalRating($rating){
+
+                if($rating === null){
+                    return '';
+                }
+
+                $rating = (float)$rating;
+
+                if($rating >= 4.5){
+                    return 'Outstanding';
+                }
+                elseif($rating >= 3.5){
+                    return 'Very Satisfactory';
+                }
+                elseif($rating >= 2.5){
+                    return 'Satisfactory';
+                }
+                elseif($rating >= 1.5){
+                    return 'Unsatisfactory';
+                }
+                else{
+                    return 'Poor';
+                }
+
+            }
+
+
+            function getRatingBadge($rating){
+
+                if($rating === null){
+                    return 'secondary';
+                }
+
+                $rating = (float)$rating;
+
+                if($rating >= 4.5){
+                    return 'success';
+                }
+                elseif($rating >= 3.5){
+                    return 'primary';
+                }
+                elseif($rating >= 2.5){
+                    return 'info';
+                }
+                elseif($rating >= 1.5){
+                    return 'warning';
+                }
+                else{
+                    return 'danger';
+                }
+
+            }
+
+
+            if($historicalResult && $historicalResult->num_rows > 0){
+
+                while($history = $historicalResult->fetch_assoc()){
+
+            ?>
+
+                <tr>
+
+                    <td class="fw-semibold">
+
+                        <?= htmlspecialchars(
+                            $history['employee_name']
+                        ); ?>
+
+                    </td>
+
+
+                    <!-- 2026 -->
+
+                    <td class="text-center">
+
+                        <?php if($history['rating_2026'] !== null): ?>
+
+                            <?php
+                            $rating2026 =
+                                (float)$history['rating_2026'];
+
+                            $status2026 =
+                                getAdjectivalRating($rating2026);
+
+                            $badge2026 =
+                                getRatingBadge($rating2026);
+                            ?>
+
+                            <span class="badge bg-<?= $badge2026; ?>">
+
+                                <?= number_format(
+                                    $rating2026,
+                                    5
+                                ); ?>
+
+                            </span>
+
+                            <br>
+
+                            <small>
+                                <?= $status2026; ?>
+                            </small>
+
+                        <?php else: ?>
+
+                            <span class="text-muted">
+                                —
+                            </span>
+
+                        <?php endif; ?>
+
+                    </td>
+
+
+                    <!-- 2027 -->
+
+                    <td class="text-center">
+
+                        <?php if($history['rating_2027'] !== null): ?>
+
+                            <?php
+                            $rating2027 =
+                                (float)$history['rating_2027'];
+
+                            $status2027 =
+                                getAdjectivalRating($rating2027);
+
+                            $badge2027 =
+                                getRatingBadge($rating2027);
+                            ?>
+
+                            <span class="badge bg-<?= $badge2027; ?>">
+
+                                <?= number_format(
+                                    $rating2027,
+                                    5
+                                ); ?>
+
+                            </span>
+
+                            <br>
+
+                            <small>
+                                <?= $status2027; ?>
+                            </small>
+
+                        <?php else: ?>
+
+                            <span class="text-muted">
+                                —
+                            </span>
+
+                        <?php endif; ?>
+
+                    </td>
+
+
+                    <!-- 2028 -->
+
+                    <td class="text-center">
+
+                        <?php if($history['rating_2028'] !== null): ?>
+
+                            <?php
+                            $rating2028 =
+                                (float)$history['rating_2028'];
+
+                            $status2028 =
+                                getAdjectivalRating($rating2028);
+
+                            $badge2028 =
+                                getRatingBadge($rating2028);
+                            ?>
+
+                            <span class="badge bg-<?= $badge2028; ?>">
+
+                                <?= number_format(
+                                    $rating2028,
+                                    5
+                                ); ?>
+
+                            </span>
+
+                            <br>
+
+                            <small>
+                                <?= $status2028; ?>
+                            </small>
+
+                        <?php else: ?>
+
+                            <span class="text-muted">
+                                —
+                            </span>
+
+                        <?php endif; ?>
+
+                    </td>
+
+                </tr>
+
+            <?php
+
+                }
+
+            }else{
+
+            ?>
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        class="text-center text-muted py-4">
+
+                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+
+                        <br>
+
+                        No historical performance records found.
+
+                    </td>
+
+                </tr>
+
+            <?php } ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
 </div>
 
 <!-- ADD EVALUATION MODAL -->
@@ -629,26 +1076,78 @@ ORDER BY first_name ASC
 <input type="hidden" name="employee_name" id="employeeName">
 
 <div class="col-md-6 mb-3">
-<label>Evaluation Period</label>
-<select
-name="evaluation_period"
-class="form-control">
-<option>Q1</option>
-<option>Q2</option>
-<option>Q3</option>
-<option>Q4</option>
-</select>
+
+    <label class="form-label">
+        Evaluation Period
+    </label>
+
+    <select
+        name="evaluation_period"
+        class="form-control"
+        required>
+
+        <option value="">-- Select Evaluation Period --</option>
+
+        <optgroup label="2026">
+            <option value="2026-Q1">2026 - Q1</option>
+            <option value="2026-Q2">2026 - Q2</option>
+            <option value="2026-Q3">2026 - Q3</option>
+            <option value="2026-Q4">2026 - Q4</option>
+        </optgroup>
+
+        <optgroup label="2027">
+            <option value="2027-Q1">2027 - Q1</option>
+            <option value="2027-Q2">2027 - Q2</option>
+            <option value="2027-Q3">2027 - Q3</option>
+            <option value="2027-Q4">2027 - Q4</option>
+        </optgroup>
+
+        <optgroup label="2028">
+            <option value="2028-Q1">2028 - Q1</option>
+            <option value="2028-Q2">2028 - Q2</option>
+            <option value="2028-Q3">2028 - Q3</option>
+            <option value="2028-Q4">2028 - Q4</option>
+        </optgroup>
+
+    </select>
+
 </div>
 
+<!-- NUMERICAL RATING -->
 <div class="col-md-6 mb-3">
-<label>Rating (1-5)</label>
-<input
-type="number"
-step="0.1"
-name="rating"
-class="form-control"
-min="1"
-max="5">
+
+    <label class="form-label">
+        Numerical Rating
+    </label>
+
+    <input
+    type="number"
+    name="rating"
+    id="ratingSelect"
+    class="form-control"
+    min="1"
+    max="5"
+    step="0.01"
+    placeholder="Enter rating (1.00 - 5.00)"
+    required>
+</div>
+
+
+<!-- ADJECTIVAL RATING -->
+<div class="col-md-6 mb-3">
+
+    <label class="form-label">
+        Adjectival Rating
+    </label>
+
+    <input
+        type="text"
+        id="adjectivalRating"
+        class="form-control"
+        value=""
+        placeholder="Automatically determined"
+        readonly>
+
 </div>
 
 <div class="col-md-6 mb-3">
@@ -749,6 +1248,45 @@ document.getElementById("employeeSelect").addEventListener("change", function(){
     document.getElementById("employeeName").value = name;
 
 });
+</script>
+
+<script>
+
+const ratingSelect = document.getElementById("ratingSelect");
+const adjectivalRating = document.getElementById("adjectivalRating");
+
+ratingSelect.addEventListener("change", function(){
+
+    const rating = this.value;
+
+    const rating = parseFloat(this.value);
+
+let adjectival = "";
+
+if(!isNaN(rating)){
+
+    if(rating >= 4.50){
+        adjectival = "Outstanding";
+    }
+    else if(rating >= 3.50){
+        adjectival = "Very Satisfactory";
+    }
+    else if(rating >= 2.50){
+        adjectival = "Satisfactory";
+    }
+    else if(rating >= 1.50){
+        adjectival = "Unsatisfactory";
+    }
+    else if(rating >= 1.00){
+        adjectival = "Poor";
+    }
+
+}
+
+adjectivalRating.value = adjectival;
+
+});
+
 </script>
 
 </body>
