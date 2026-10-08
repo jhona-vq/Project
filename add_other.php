@@ -116,97 +116,97 @@ label{
 
 <body>
 
-<div class="container py-4">
+    <div class="container py-4">
 
-<div class="card">
+        <div class="card">
 
-<div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white">
 
-<i class="fas fa-circle-info me-2"></i>
+                <i class="fas fa-circle-info me-2"></i>
 
-Other Information
+                Other Information
 
-</div>
+            </div>
 
-<div class="card-body">
+            <div class="card-body">
 
-<form method="POST">
+                <form method="POST">
 
-<div class="mb-3">
+                    <div class="mb-3">
 
-<label>Special Skills and Hobbies</label>
+                        <label>Special Skills and Hobbies</label>
 
-<textarea
-name="skills_hobbies"
-class="form-control"
-rows="4"
-required></textarea>
+                        <textarea
+                            name="skills_hobbies"
+                            class="form-control"
+                            rows="4"
+                        required></textarea>
 
-</div>
+                    </div>
 
-<div class="mb-3">
+                    <div class="mb-3">
 
-<label>Non-Academic Distinctions / Recognition</label>
+                        <label>Non-Academic Distinctions / Recognition</label>
 
-<textarea
-name="non_academic"
-class="form-control"
-rows="4"
-required></textarea>
+                        <textarea
+                            name="non_academic"
+                            class="form-control"
+                            rows="4"
+                        required></textarea>
 
-</div>
+                    </div>
 
-<div class="mb-3">
+                    <div class="mb-3">
 
-<label>Membership in Association / Organization</label>
+                        <label>Membership in Association / Organization</label>
 
-<textarea
-name="membership"
-class="form-control"
-rows="4"
-required></textarea>
+                        <textarea
+                            name="membership"
+                            class="form-control"
+                            rows="4"
+                        required></textarea>
 
-</div>
+                    </div>
 
-<div class="text-end">
+                    <div class="text-end">
 
-<a
-href="personnel.php?id=<?= $personnel_id ?>"
-class="btn btn-secondary">
+                        <a
+                            href="personnel.php?id=<?= $personnel_id ?>"
+                            class="btn btn-secondary">
 
-Back
+                            Back
 
-</a>
+                        </a>
 
-<button
-type="submit"
-name="save_other"
-class="btn btn-primary">
+                        <button
+                            type="submit"
+                            name="save_other"
+                            class="btn btn-primary">
 
-<i class="fas fa-save"></i>
+                            <i class="fas fa-save"></i>
 
-Save
+                            Save
 
-</button>
+                        </button>
 
-</div>
+                    </div>
 
-</form>
+                </form>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
-</div>
-<script>
-document.addEventListener("DOMContentLoaded",function(){
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded",function(){
 
-    if(localStorage.getItem("theme")==="dark"){
-        document.body.classList.add("dark-mode");
-    }
+        if(localStorage.getItem("theme")==="dark"){
+            document.body.classList.add("dark-mode");
+        }
 
-});
-</script>
+        });
+    </script>
 </body>
 
 </html>
