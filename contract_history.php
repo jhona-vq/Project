@@ -73,208 +73,208 @@ body{
 
 <body>
 
-<div class="container py-4">
+    <div class="container py-4">
 
-<div class="header">
+        <div class="header">
 
-<h2>
+            <h2>
 
-<i class="fas fa-history"></i>
+                <i class="fas fa-history"></i>
 
-Contract History
+                Contract History
 
-</h2>
+            </h2>
 
-<p class="mb-0">
+            <p class="mb-0">
 
-<?= $emp['last_name']; ?>,
-<?= $emp['first_name']; ?>
-<?= $emp['middle_name']; ?>
+                <?= $emp['last_name']; ?>,
+                <?= $emp['first_name']; ?>
+                <?= $emp['middle_name']; ?>
 
-</p>
+            </p>
 
-</div>
+            </div>
 
-<div class="card mb-4">
+            <div class="card mb-4">
 
-<div class="card-body">
+                <div class="card-body">
 
-<div class="row">
+                    <div class="row">
 
-<div class="col-md-4">
+                        <div class="col-md-4">
 
-<strong>Employee ID</strong><br>
+                            <strong>Employee ID</strong><br>
 
-<?= $emp['employee_id']; ?>
+                            <?= $emp['employee_id']; ?>
 
-</div>
+                        </div>
 
-<div class="col-md-4">
+                        <div class="col-md-4">
 
-<strong>Position</strong><br>
+                            <strong>Position</strong><br>
 
-<?= $emp['position_title']; ?>
+                            <?= $emp['position_title']; ?>
 
-</div>
+                        </div>
 
-<div class="col-md-4">
+                        <div class="col-md-4">
 
-<strong>Office</strong><br>
+                            <strong>Office</strong><br>
 
-<?= $emp['office_assignment']; ?>
+                            <?= $emp['office_assignment']; ?>
 
-</div>
+                        </div>
 
-</div>
+                    </div>
 
-</div>
+                </div>
 
-</div>
+            </div>
 
-<div class="card">
+            <div class="card">
 
-<div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white">
 
-<h5 class="mb-0">
+                    <h5 class="mb-0">
 
-All Contracts
+                        All Contracts
 
-</h5>
+                    </h5>
 
-</div>
+                </div>
 
-<div class="card-body">
+                <div class="card-body">
 
-<div class="table-responsive">
+                    <div class="table-responsive">
 
-<table class="table table-bordered table-hover">
+                        <table class="table table-bordered table-hover">
 
-<thead class="table-dark">
+                            <thead class="table-dark">
 
-<tr>
+                                <tr>
 
-<th>Contract ID</th>
+                                    <th>Contract ID</th>
 
-<th>Start Date</th>
+                                    <th>Start Date</th>
 
-<th>End Date</th>
+                                    <th>End Date</th>
 
-<th>Position</th>
+                                    <th>Position</th>
 
-<th>Monthly Rate</th>
+                                    <th>Monthly Rate</th>
 
-<th>Status</th>
+                                    <th>Status</th>
 
-</tr>
+                                </tr>
 
-</thead>
+                            </thead>
 
-<tbody>
+                            <tbody>
 
-<?php
+                                <?php
 
-if($getContracts->num_rows > 0){
+                                if($getContracts->num_rows > 0){
 
-while($row = $getContracts->fetch_assoc()){
+                                while($row = $getContracts->fetch_assoc()){
 
-$status = strtolower($row['status']);
+                                $status = strtolower($row['status']);
 
-$badge = "secondary";
+                                $badge = "secondary";
 
-if($status=="active"){
-    $badge="success";
-}
-elseif($status=="renewed"){
-    $badge="primary";
-}
-elseif($status=="terminated"){
-    $badge="dark";
-}
+                                if($status=="active"){
+                                    $badge="success";
+                                }
+                                elseif($status=="renewed"){
+                                    $badge="primary";
+                                }
+                                elseif($status=="terminated"){
+                                    $badge="dark";
+                                }
 
-?>
+                                ?>
 
-<tr>
+                                <tr>
 
-<td><?= $row['contract_id']; ?></td>
+                                    <td><?= $row['contract_id']; ?></td>
 
-<td><?= date('M d, Y',strtotime($row['start_date'])); ?></td>
+                                    <td><?= date('M d, Y',strtotime($row['start_date'])); ?></td>
 
-<td><?= date('M d, Y',strtotime($row['end_date'])); ?></td>
+                                    <td><?= date('M d, Y',strtotime($row['end_date'])); ?></td>
 
-<td><?= $row['position_title']; ?></td>
+                                    <td><?= $row['position_title']; ?></td>
 
-<td>
+                                    <td>
 
-₱<?= number_format($row['monthly_rate'],2); ?>
+                                        ₱<?= number_format($row['monthly_rate'],2); ?>
 
-</td>
+                                    </td>
 
-<td>
+                                    <td>
 
-<span class="badge bg-<?= $badge; ?>">
+                                        <span class="badge bg-<?= $badge; ?>">
 
-<?= strtoupper($row['status']); ?>
+                                            <?= strtoupper($row['status']); ?>
 
-</span>
+                                        </span>
 
-</td>
+                                    </td>
 
-</tr>
+                                </tr>
 
-<?php
+                                <?php
 
-}
+                                }
 
-}else{
+                                }else{
 
-?>
+                                ?>
 
-<tr>
+                                <tr>
 
-<td colspan="6" class="text-center">
+                                    <td colspan="6" class="text-center">
 
-No Contract History Found.
+                                        No Contract History Found.
 
-</td>
+                                    </td>
 
-</tr>
+                                </tr>
 
-<?php } ?>
+                                <?php } ?>
 
-</tbody>
+                            </tbody>
 
-</table>
+                        </table>
 
-</div>
+                    </div>
 
-<div class="mt-3">
+                    <div class="mt-3">
 
-<a href="javascript:history.back()"
-class="btn btn-secondary">
+                        <a href="javascript:history.back()"
+                            class="btn btn-secondary">
 
-<i class="fas fa-arrow-left"></i>
+                            <i class="fas fa-arrow-left"></i>
 
-Back
+                            Back
 
-</a>
+                        </a>
 
-<button
-onclick="window.print()"
-class="btn btn-primary">
+                        <button
+                            onclick="window.print()"
+                            class="btn btn-primary">
 
-<i class="fas fa-print"></i>
+                            <i class="fas fa-print"></i>
 
-Print
+                            Print
 
-</button>
+                        </button>
 
-</div>
+                    </div>
 
-</div>
+                </div>
 
-</div>
+            </div>
 
-</div>
-
+        </div>
+    </div>
 </body>
 </html>
