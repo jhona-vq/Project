@@ -267,7 +267,7 @@ if (isset($_POST['update_education'])) {
     echo "
     <script>
         alert('Educational Background Updated Successfully.');
-        window.location.href = 'personnel.php?id=" . $personnel_id . "';
+        window.location.href = 'edit_education.php?id=" . $personnel_id . "';
     </script>
     ";
 
@@ -506,593 +506,593 @@ label{
 <body>
 
 
-<div class="container py-4">
+    <div class="container py-4">
 
 
-<div class="main-card card">
+        <div class="main-card card">
 
 
-<!-- =====================================================
-     HEADER
-===================================================== -->
+            <!-- =====================================================
+                HEADER
+            ===================================================== -->
 
-<div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white">
 
-    <i class="fas fa-graduation-cap me-2"></i>
+                    <i class="fas fa-graduation-cap me-2"></i>
 
-    Edit Educational Background
+                    Edit Educational Background
 
-</div>
-
-
-<!-- =====================================================
-     PERSONNEL INFORMATION
-===================================================== -->
-
-<div class="personnel-info">
-
-    <div class="personnel-name">
-
-        <?= htmlspecialchars(
-            trim(
-                ($personnel['first_name'] ?? '') . ' ' .
-                ($personnel['middle_name'] ?? '') . ' ' .
-                ($personnel['last_name'] ?? '')
-            ),
-            ENT_QUOTES,
-            'UTF-8'
-        ) ?>
-
-    </div>
-
-    <div class="personnel-id">
-
-        Employee ID:
-        <strong>
-            <?= htmlspecialchars(
-                $personnel['employee_id'] ?? '',
-                ENT_QUOTES,
-                'UTF-8'
-            ) ?>
-        </strong>
-
-    </div>
-
-</div>
+                </div>
 
 
-<div class="card-body p-4">
+                <!-- =====================================================
+                    PERSONNEL INFORMATION
+                ===================================================== -->
+
+                <div class="personnel-info">
+
+                    <div class="personnel-name">
+
+                        <?= htmlspecialchars(
+                            trim(
+                                ($personnel['first_name'] ?? '') . ' ' .
+                                ($personnel['middle_name'] ?? '') . ' ' .
+                                ($personnel['last_name'] ?? '')
+                            ),
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>
+
+                    </div>
+
+                    <div class="personnel-id">
+
+                        Employee ID:
+                        <strong>
+                            <?= htmlspecialchars(
+                                $personnel['employee_id'] ?? '',
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>
+                        </strong>
+
+                    </div>
+
+                </div>
 
 
-<form method="POST">
-
-<!-- IMPORTANT -->
-<input
-type="hidden"
-name="personnel_id"
-value="<?= $personnel_id ?>">
+                <div class="card-body p-4">
 
 
-<?php
+                    <form method="POST">
 
-$levels = [
-
-    "Elementary",
-    "Secondary",
-    "Vocational/Trade Course",
-    "College",
-    "Graduate Studies"
-
-];
+                        <!-- IMPORTANT -->
+                        <input
+                            type="hidden"
+                            name="personnel_id"
+                        value="<?= $personnel_id ?>">
 
 
-foreach($levels as $level):
+                        <?php
+
+                            $levels = [
+
+                                "Elementary",
+                                "Secondary",
+                                "Vocational/Trade Course",
+                                "College",
+                                "Graduate Studies"
+
+                            ];
 
 
-/* =====================================================
-   SECONDARY
-===================================================== */
-
-if($level === "Secondary"):
-
-?>
-
-<div class="level-card">
-
-    <div class="level-title">
-
-        <i class="fas fa-school me-2"></i>
-
-        Secondary Education
-
-    </div>
+                            foreach($levels as $level):
 
 
-    <div class="level-body">
+                            /* =====================================================
+                                SECONDARY
+                            ===================================================== */
+
+                            if($level === "Secondary"):
+
+                        ?>
+
+                        <div class="level-card">
+
+                            <div class="level-title">
+
+                                <i class="fas fa-school me-2"></i>
+
+                                Secondary Education
+
+                            </div>
 
 
-        <!-- ============================
-             JUNIOR HIGH SCHOOL
-        ============================= -->
+                            <div class="level-body">
 
-        <div class="section-subtitle">
 
-            Junior High School
+                                <!-- ============================
+                                    JUNIOR HIGH SCHOOL
+                                ============================= -->
+
+                                <div class="section-subtitle">
+
+                                    Junior High School
+
+                                </div>
+
+
+                                    <div class="row">
+
+                                        <div class="col-md-6 mb-3">
+
+                                            <label>School Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="school_name[Secondary_JHS]"
+                                                class="form-control"
+                                            value="<?= eduValue(
+                                            $education,
+                                            'Secondary_JHS',
+                                            'school_name',
+                                                $defaultEducation
+                                            ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-6 mb-3">
+
+                                            <label>Basic Education / Degree / Course</label>
+
+                                            <input
+                                                type="text"
+                                                name="degree[Secondary_JHS]"
+                                                class="form-control"
+                                            value="<?= eduValue(
+                                            $education,
+                                            'Secondary_JHS',
+                                            'degree',
+                                                $defaultEducation
+                                            ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Period From</label>
+
+                                            <input
+                                                type="date"
+                                                name="period_from[Secondary_JHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                $education,
+                                                'Secondary_JHS',
+                                                'period_from',
+                                                    $defaultEducation
+                                            ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Period To</label>
+
+                                            <input
+                                                type="date"
+                                                name="period_to[Secondary_JHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                $education,
+                                                'Secondary_JHS',
+                                                'period_to',
+                                                    $defaultEducation
+                                            ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Year Graduated</label>
+
+                                            <input
+                                                type="text"
+                                                name="year_graduated[Secondary_JHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                $education,
+                                                    'Secondary_JHS',
+                                                    'year_graduated',
+                                                        $defaultEducation
+                                            ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Scholarship / Honors</label>
+
+                                            <input
+                                                type="text"
+                                                name="scholarship[Secondary_JHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    'Secondary_JHS',
+                                                    'scholarship',
+                                                        $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <hr>
+
+
+                                    <!-- ============================
+                                        SENIOR HIGH SCHOOL
+                                    ============================= -->
+
+                                    <div class="section-subtitle">
+
+                                        Senior High School
+
+                                    </div>
+
+
+                                    <div class="row">
+
+                                        <div class="col-md-6 mb-3">
+
+                                            <label>School Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="school_name[Secondary_SHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    'Secondary_SHS',
+                                                    'school_name',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-6 mb-3">
+
+                                            <label>Track / Strand</label>
+
+                                            <input
+                                                type="text"
+                                                name="degree[Secondary_SHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    'Secondary_SHS',
+                                                    'degree',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Period From</label>
+
+                                            <input
+                                                type="date"
+                                                name="period_from[Secondary_SHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    'Secondary_SHS',
+                                                    'period_from',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Period To</label>
+
+                                            <input
+                                                type="date"
+                                                name="period_to[Secondary_SHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    'Secondary_SHS',
+                                                    'period_to',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Year Graduated</label>
+
+                                            <input
+                                                type="text"
+                                                name="year_graduated[Secondary_SHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    'Secondary_SHS',
+                                                    'year_graduated',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Scholarship / Honors</label>
+
+                                            <input
+                                                type="text"
+                                                name="scholarship[Secondary_SHS]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    'Secondary_SHS',
+                                                    'scholarship',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <?php
+
+                            continue;
+
+                            endif;
+
+
+                            /* =====================================================
+                                OTHER EDUCATION LEVELS
+                            ===================================================== */
+
+                            ?>
+
+                            <div class="level-card">
+
+
+                                <div class="level-title">
+
+                                    <i class="fas fa-school me-2"></i>
+
+                                    <?= htmlspecialchars(
+                                         $level,
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+
+                                </div>
+
+
+                                <div class="level-body">
+
+
+                                    <div class="row">
+
+
+                                        <div class="col-md-6 mb-3">
+
+                                            <label>School Name</label>
+
+                                            <input
+                                                type="text"
+                                                name="school_name[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    $level,
+                                                    'school_name',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-6 mb-3">
+
+                                            <label>Basic Education / Degree / Course</label>
+
+                                            <input
+                                                type="text"
+                                                    name="degree[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
+                                                    class="form-control"
+                                                    value="<?= eduValue(
+                                                        $education,
+                                                        $level,
+                                                        'degree',
+                                                        $defaultEducation
+                                                    ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Period From</label>
+
+                                            <input
+                                                type="date"
+                                                name="period_from[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    $level,
+                                                    'period_from',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Period To</label>
+
+                                                <input
+                                                    type="date"
+                                                    name="period_to[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
+                                                    class="form-control"
+                                                    value="<?= eduValue(
+                                                        $education,
+                                                        $level,
+                                                        'period_to',
+                                                        $defaultEducation
+                                                    ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Highest Level / Units Earned</label>
+
+                                            <input
+                                                type="text"
+                                                name="highest_level[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    $level,
+                                                    'highest_level',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-3 mb-3">
+
+                                            <label>Year Graduated</label>
+
+                                            <input
+                                                type="text"
+                                                name="year_graduated[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    $level,
+                                                    'year_graduated',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                        <div class="col-md-12 mb-3">
+
+                                            <label>Scholarship / Academic Honors</label>
+
+                                            <input
+                                                type="text"
+                                                name="scholarship[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
+                                                class="form-control"
+                                                value="<?= eduValue(
+                                                    $education,
+                                                    $level,
+                                                    'scholarship',
+                                                    $defaultEducation
+                                                ) ?>">
+
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <?php endforeach; ?>
+
+
+                            <!-- =====================================================
+                                BUTTONS
+                            ===================================================== -->
+
+                            <div class="action-buttons">
+
+
+                                <a
+                                    href="personnel.php?id=<?= $personnel_id ?>"
+                                    class="btn btn-secondary">
+
+                                    <i class="fas fa-arrow-left me-1"></i>
+
+                                    Back to Personnel Profile
+
+                                </a>
+
+
+                                <button
+                                    type="submit"
+                                    name="update_education"
+                                    class="btn btn-primary">
+
+                                    <i class="fas fa-save me-1"></i>
+
+                                    Update Educational Background
+
+                                </button>
+
+
+                            </div>
+                        </div>
+
+                    </form>
+
+
+                </div>
 
         </div>
 
-
-        <div class="row">
-
-            <div class="col-md-6 mb-3">
-
-                <label>School Name</label>
-
-                <input
-                type="text"
-                name="school_name[Secondary_JHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_JHS',
-                    'school_name',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-6 mb-3">
-
-                <label>Basic Education / Degree / Course</label>
-
-                <input
-                type="text"
-                name="degree[Secondary_JHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_JHS',
-                    'degree',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Period From</label>
-
-                <input
-                type="date"
-                name="period_from[Secondary_JHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_JHS',
-                    'period_from',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Period To</label>
-
-                <input
-                type="date"
-                name="period_to[Secondary_JHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_JHS',
-                    'period_to',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Year Graduated</label>
-
-                <input
-                type="text"
-                name="year_graduated[Secondary_JHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_JHS',
-                    'year_graduated',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Scholarship / Honors</label>
-
-                <input
-                type="text"
-                name="scholarship[Secondary_JHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_JHS',
-                    'scholarship',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-        </div>
-
-
-        <hr>
-
-
-        <!-- ============================
-             SENIOR HIGH SCHOOL
-        ============================= -->
-
-        <div class="section-subtitle">
-
-            Senior High School
-
-        </div>
-
-
-        <div class="row">
-
-            <div class="col-md-6 mb-3">
-
-                <label>School Name</label>
-
-                <input
-                type="text"
-                name="school_name[Secondary_SHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_SHS',
-                    'school_name',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-6 mb-3">
-
-                <label>Track / Strand</label>
-
-                <input
-                type="text"
-                name="degree[Secondary_SHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_SHS',
-                    'degree',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Period From</label>
-
-                <input
-                type="date"
-                name="period_from[Secondary_SHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_SHS',
-                    'period_from',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Period To</label>
-
-                <input
-                type="date"
-                name="period_to[Secondary_SHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_SHS',
-                    'period_to',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Year Graduated</label>
-
-                <input
-                type="text"
-                name="year_graduated[Secondary_SHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_SHS',
-                    'year_graduated',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Scholarship / Honors</label>
-
-                <input
-                type="text"
-                name="scholarship[Secondary_SHS]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    'Secondary_SHS',
-                    'scholarship',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<?php
-
-continue;
-
-endif;
-
-
-/* =====================================================
-   OTHER EDUCATION LEVELS
-===================================================== */
-
-?>
-
-<div class="level-card">
-
-
-    <div class="level-title">
-
-        <i class="fas fa-school me-2"></i>
-
-        <?= htmlspecialchars(
-            $level,
-            ENT_QUOTES,
-            'UTF-8'
-        ) ?>
-
     </div>
 
 
-    <div class="level-body">
+    <script>
 
+        document.addEventListener("DOMContentLoaded", function(){
 
-        <div class="row">
+            if(localStorage.getItem("theme") === "dark"){
 
+                document.documentElement.classList.add("dark-mode");
 
-            <div class="col-md-6 mb-3">
+                document.body.classList.add("dark-mode");
 
-                <label>School Name</label>
+            }
 
-                <input
-                type="text"
-                name="school_name[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    $level,
-                    'school_name',
-                    $defaultEducation
-                ) ?>">
+        });
 
-            </div>
-
-
-            <div class="col-md-6 mb-3">
-
-                <label>Basic Education / Degree / Course</label>
-
-                <input
-                type="text"
-                name="degree[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    $level,
-                    'degree',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Period From</label>
-
-                <input
-                type="date"
-                name="period_from[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    $level,
-                    'period_from',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Period To</label>
-
-                <input
-                type="date"
-                name="period_to[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    $level,
-                    'period_to',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Highest Level / Units Earned</label>
-
-                <input
-                type="text"
-                name="highest_level[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    $level,
-                    'highest_level',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-
-                <label>Year Graduated</label>
-
-                <input
-                type="text"
-                name="year_graduated[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    $level,
-                    'year_graduated',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-            <div class="col-md-12 mb-3">
-
-                <label>Scholarship / Academic Honors</label>
-
-                <input
-                type="text"
-                name="scholarship[<?= htmlspecialchars($level, ENT_QUOTES, 'UTF-8') ?>]"
-                class="form-control"
-                value="<?= eduValue(
-                    $education,
-                    $level,
-                    'scholarship',
-                    $defaultEducation
-                ) ?>">
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<?php endforeach; ?>
-
-
-<!-- =====================================================
-     BUTTONS
-===================================================== -->
-
-<div class="action-buttons">
-
-
-    <a
-    href="personnel.php?id=<?= $personnel_id ?>"
-    class="btn btn-secondary">
-
-        <i class="fas fa-arrow-left me-1"></i>
-
-        Back to Personnel Profile
-
-    </a>
-
-
-    <button
-    type="submit"
-    name="update_education"
-    class="btn btn-primary">
-
-        <i class="fas fa-save me-1"></i>
-
-        Update Educational Background
-
-    </button>
-
-
-</div>
-
-
-</form>
-
-
-</div>
-
-</div>
-
-</div>
-
-
-<script>
-
-document.addEventListener("DOMContentLoaded", function(){
-
-    if(localStorage.getItem("theme") === "dark"){
-
-        document.documentElement.classList.add("dark-mode");
-
-        document.body.classList.add("dark-mode");
-
-    }
-
-});
-
-</script>
+    </script>
 
 
 </body>
