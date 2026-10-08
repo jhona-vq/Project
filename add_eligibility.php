@@ -1,12 +1,21 @@
 <?php
+
 include "auth.php";
 include "config.php";
 include "role_access.php";
 
 allowRoles([
-           'System Administrator',
-           'HR Administrator'
+    'System Administrator',
+    'HR Administrator'
 ]);
+
+
+/* =========================================================
+   GET PERSONNEL ID
+   Supports:
+   add_eligibility.php?id=2
+   add_eligibility.php?personnel_id=2
+========================================================= */
 
 $personnel_id = intval(
     $_GET['personnel_id']
@@ -15,9 +24,14 @@ $personnel_id = intval(
     ?? 0
 );
 
-if($personnel_id <= 0) {
+if ($personnel_id <= 0) {
     die("Invalid personnel ID.");
 }
+
+
+/* =========================================================
+   VERIFY PERSONNEL EXISTS
+========================================================= */
 
 $stmtPersonnel = $conn->prepare("
     SELECT id, employee_id, first_name, middle_name, last_name
@@ -33,148 +47,207 @@ $stmtPersonnel->bind_param(
 
 $stmtPersonnel->execute();
 
-$stmtPersonnelResult = $stmtPersonnel->get_result();
+$personnelResult = $stmtPersonnel->get_result();
 
-if($personnelResult->num_rows ===0){
+if ($personnelResult->num_rows === 0) {
     die("Personnel record not found.");
 }
 
-$personnel = $personnelResult-.fetch-assoc();
+$personnel = $personnelResult->fetch_assoc();
 
 $stmtPersonnel->close();
 
-if(isset($_POST['save_eligibility'])){
 
-    $eligibility    = trim($_POST['eligibility']);
-    $rating         = trim($_POST['rating']);
-    $exam_date      = $_POST['exam_date'];
-    $exam_place     = trim($_POST['exam_place']);
-    $license_number = trim($_POST['license_number']);
-    $valid_until    = $_POST['valid_until'];
+/* =========================================================
+   SAVE MULTIPLE ELIGIBILITIES
+========================================================= */
 
-if(!is-array($eligibilities)) {
-    $eligibilities = [];
-}
+if (isset($_POST['save_eligibility'])) {
 
-$saveCount = 0;
+    $eligibilities = $_POST['eligibility'] ?? [];
+    $ratings       = $_POST['rating'] ?? [];
+    $exam_dates    = $_POST['exam_date'] ?? [];
+    $exam_places   = $_POST['exam_place'] ?? [];
+    $licenses      = $_POST['license_number'] ?? [];
+    $valid_untils  = $_POST['valid_until'] ?? [];
 
-$conn->begin_transaction();
+
+    /* ================================================
+       MAKE SURE ARRAYS EXIST
+    ================================================ */
+
+    if (!is_array($eligibilities)) {
+        $eligibilities = [];
+    }
+
+
+    $savedCount = 0;
+
+
+    /* ================================================
+       START TRANSACTION
+    ================================================ */
+
+    $conn->begin_transaction();
+
+
     try {
-        foreach( $eligibilities as $index => $eligibility) {
+
+        foreach ($eligibilities as $index => $eligibility) {
+
             $eligibility = trim($eligibility);
 
             $rating = trim(
                 $ratings[$index] ?? ''
             );
+
             $exam_date = trim(
-                $exam-dates[$index] ?? ''
+                $exam_dates[$index] ?? ''
             );
+
             $exam_place = trim(
-                $exam_places[$index] ? ''
+                $exam_places[$index] ?? ''
             );
+
             $license_number = trim(
                 $licenses[$index] ?? ''
             );
+
             $valid_until = trim(
                 $valid_untils[$index] ?? ''
             );
 
-            if ($eligibilty === '') {
+
+            /* ========================================
+               SKIP EMPTY ROW
+            ======================================== */
+
+            if ($eligibility === '') {
                 continue;
             }
 
+
+            /* ========================================
+               EMPTY DATE = NULL
+            ======================================== */
+
             $exam_date = ($exam_date !== '')
                 ? $exam_date
-                ; null;
-    
+                : null;
 
-    $stmt = $conn->prepare("
-    INSERT INTO personnel_eligibility
-    (
-        personnel_id,
-        eligibility,
-        rating,
-        exam_date,
-        exam_place,
-        license_number,
-        valid_until
-    )
-    VALUES(?,?,?,?,?,?,?)
-    ");
 
-    if (!$stmt) {
-        throw new Exception(
-            "Prepare failed: " . $conn->error
+            /* ========================================
+               INSERT
+            ======================================== */
+
+            $stmt = $conn->prepare("
+                INSERT INTO personnel_eligibility
+                (
+                    personnel_id,
+                    eligibility,
+                    rating,
+                    exam_date,
+                    exam_place,
+                    license_number,
+                    valid_until
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+
+
+            if (!$stmt) {
+                throw new Exception(
+                    "Prepare failed: " . $conn->error
+                );
+            }
+
+
+            $stmt->bind_param(
+                "issssss",
+                $personnel_id,
+                $eligibility,
+                $rating,
+                $exam_date,
+                $exam_place,
+                $license_number,
+                $valid_until
+            );
+
+
+            if (!$stmt->execute()) {
+
+                throw new Exception(
+                    "Unable to save eligibility: " .
+                    $stmt->error
+                );
+            }
+
+
+            $stmt->close();
+
+            $savedCount++;
+        }
+
+
+        /* ============================================
+           NO RECORDS ENTERED
+        ============================================ */
+
+        if ($savedCount === 0) {
+
+            $conn->rollback();
+
+            echo "
+            <script>
+                alert('Please enter at least one eligibility.');
+                history.back();
+            </script>
+            ";
+
+            exit;
+        }
+
+
+        /* ============================================
+           COMMIT
+        ============================================ */
+
+        $conn->commit();
+
+
+        echo "
+        <script>
+
+            alert(
+                '" . $savedCount . " eligibility record(s) saved successfully.'
+            );
+
+            window.location.href =
+                'personnel.php?id=" . $personnel_id . "';
+
+        </script>
+        ";
+
+        exit;
+
+
+    } catch (Exception $e) {
+
+        $conn->rollback();
+
+        die(
+            "Error saving eligibility: " .
+            htmlspecialchars(
+                $e->getMessage(),
+                ENT_QUOTES,
+                'UTF-8'
+            )
         );
     }
-
-    $stmt->bind_param(
-        "issssss",
-        $personnel_id,
-        $eligibility,
-        $rating,
-        $exam_date,
-        $exam_place,
-        $license_number,
-        $valid_until
-    );
-
-    if($stmt->execute()){
-
-        throw new Exception(
-            "Unable to save eligibilty: " .
-            $stmt->error
-        );
-    }
-
-    $stmt->close();
-
-    $saveCount++;
 }
 
-if ($saveCount === 0) {
-    $conn->rollback();
-
-    echo "
-    <script>
-        alert ('Please enter at least one eligibility.');
-        history.back();
-    </script>
-    ";
-
-    exit;
-}
-
-$conn->commit();
-
-echo "
-<script>
-
-    alert(
-        '" . $savedCount . " eligibility record(s) saved successfully.'
-    );
-
-    window.location.href =
-        'personnel.php?id= . $personnel-id . "';
-</script>
-";
-
-exit;
-
-} catch (Exception $e) {
-    $conn->rollback();
-
-    die(
-        "Error saving eligibility; " .
-        htmlspeechialchars(
-            $e->getMessage(),
-            ENT_QUOTES,
-            'UTF-8'
-        )
-    );
-}
-}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -184,20 +257,29 @@ exit;
 <meta charset="UTF-8">
 
 <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+      content="width=device-width, initial-scale=1.0">
 
 <title>Add Civil Service Eligibility</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+
+<link
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+rel="stylesheet">
 
 
 <script>
+
 if(localStorage.getItem("theme") === "dark"){
     document.documentElement.classList.add("dark-mode");
 }
+
 </script>
+
 
 <style>
 
@@ -227,53 +309,63 @@ body{
     padding:18px 22px;
 }
 
-.personel-info{
+.personnel-info{
     background:#f8fafc;
-    borde-bottom:1px solod #e5e7eb;
-    padding: 18px 22px;
+    border-bottom:1px solid #e5e7eb;
+    padding:18px 22px;
 }
-.personel-name{
+
+.personnel-name{
     font-size:20px;
     font-weight:700;
 }
+
 .personnel-id{
     color:#64748b;
     font-size:14px;
 }
-.eligibility-card[
+
+.eligibility-card{
     border:1px solid #e5e7eb;
     border-radius:15px;
     margin-bottom:20px;
     overflow:hidden;
     background:#fff;
 }
+
 .eligibility-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     background:#eff6ff;
     padding:12px 16px;
-    border-bottom:1px solid #dbefe;
+    border-bottom:1px solid #dbeafe;
 }
+
 .eligibility-title{
-    font=-weight:700;
+    font-weight:700;
     color:#2563eb;
 }
+
 .eligibility-body{
     padding:20px;
 }
+
 label{
     font-weight:600;
     margin-bottom:6px;
 }
+
 .form-control,
 .form-select{
     min-height:44px;
     border-radius:9px;
 }
+
 .remove-btn{
     border-radius:8px;
 }
+
 .action-buttons{
     display:flex;
     justify-content:space-between;
@@ -283,117 +375,156 @@ label{
     padding-top:20px;
     border-top:1px solid #e5e7eb;
 }
+
 .dark-mode body{
-    backround:#0f172a;
-    color:fff;
+    background:#0f172a;
+    color:#fff;
 }
+
 .dark-mode .card{
     background:#1e293b;
     color:#fff;
 }
+
 .dark-mode .card-header{
     background:#1e293b !important;
     color:#fff;
 }
+
 .dark-mode .personnel-info{
-    backgound:#172033;
+    background:#172033;
     border-color:#334155;
 }
+
 .dark-mode .personnel-id{
     color:#cbd5e1;
 }
+
 .dark-mode .eligibility-card{
     background:#1e293b;
     border-color:#475569;
 }
+
 .dark-mode .eligibility-header{
     background:#172554;
     border-color:#334155;
 }
+
 .dark-mode .eligibility-title{
     color:#93c5fd;
 }
+
 .dark-mode label{
     color:#fff;
 }
+
 .dark-mode .form-control,
 .dark-mode .form-select{
     background:#334155;
     color:#fff;
     border-color:#475569;
 }
+
 .dark-mode .form-control::placeholder{
     color:#cbd5e1;
 }
 
 @media(max-width:768px){
 
-    .contsiner{
+    .container{
         padding:10px;
     }
+
     .card-header{
         font-size:18px;
     }
-    personnel-info{
+
+    .personnel-info{
         padding:15px;
     }
+
     .eligibility-body{
         padding:15px;
     }
-    .action-buttons[
+
+    .action-buttons{
         flex-direction:column;
         align-items:stretch;
     }
+
     .action-buttons .btn{
         width:100%;
     }
+
 }
 
 </style>
 
 </head>
 
+
 <body>
+
 
 <div class="container py-4">
 
+
 <div class="card">
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
 <div class="card-header bg-primary text-white">
 
-<i class="fas fa-award me-2"></i>
+    <i class="fas fa-award me-2"></i>
 
-Civil Service Eligibility
+    Civil Service Eligibility
 
 </div>
 
+
+<!-- =====================================================
+     PERSONNEL INFORMATION
+===================================================== -->
+
 <div class="personnel-info">
+
     <div class="personnel-name">
+
         <?= htmlspecialchars(
             trim(
-                ($personnel['first_name'] ?? '') . '' .
-                ($personnel['middle_name'] ?? '') . '' .
-                ($personnel['last_name'] ?? '') 
+                ($personnel['first_name'] ?? '') . ' ' .
+                ($personnel['middle_name'] ?? '') . ' ' .
+                ($personnel['last_name'] ?? '')
             ),
             ENT_QUOTES,
             'UTF-8'
         ) ?>
+
     </div>
 
-    <dic class="personnel_id">
-        Emplyee ID:
+
+    <div class="personnel-id">
+
+        Employee ID:
 
         <strong>
             <?= htmlspecialchars(
-                $personnel['employee-id'] ?? '',
+                $personnel['employee_id'] ?? '',
                 ENT_QUOTES,
                 'UTF-8'
             ) ?>
         </strong>
+
     </div>
+
 </div>
 
+
 <div class="card-body p-4">
+
 
 <form method="POST">
 
