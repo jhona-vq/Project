@@ -2,7 +2,7 @@
 include "auth.php";
 include "config.php";
 
-$personnel_id = $_GET['personnel_id'] ?? '';
+$personnel_id = $_GET['id'] ?? '';
 
 if(isset($_POST['save_education'])){
 
@@ -83,8 +83,8 @@ if(isset($_POST['save_education'])){
     <script>
     alert('Educational Background Saved Successfully');
     window.location='personnel.php?id=$personnel_id';
-    </script>
-    ";
+    </script>";
+    exit;
 }
 ?>
 
@@ -174,256 +174,256 @@ body{
 
 <body>
 
-<div class="container py-4">
+    <div class="container py-4">
 
-<div class="card">
+        <div class="card">
 
-<div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white">
 
-<i class="fas fa-graduation-cap"></i>
+                <i class="fas fa-graduation-cap"></i>
 
-Educational Background
+                Educational Background
 
-</div>
+            </div>
 
-<div class="card-body">
+            <div class="card-body">
 
-<form method="POST">
-<?php
+            <form method="POST">
+            <?php
 
-$levels = [
+                $levels = [
 
-"Elementary",
+                "Elementary",
 
-"Secondary",
+                "Secondary",
 
-"Vocational/Trade Course",
+                "Vocational/Trade Course",
 
-"College",
+                "College",
 
-"Graduate Studies"
+                "Graduate Studies"
 
-];
+                ];
 
-foreach($levels as $level){
+                foreach($levels as $level){
 
-    // ==========================
-    // SECONDARY
-    // ==========================
-    if($level=="Secondary"){
-?>
+                // ==========================
+                // SECONDARY
+                // ==========================
+                if($level=="Secondary"){
+            ?>
 
-<div class="level-card">
+            <div class="level-card">
 
-<div class="level-title">
-<i class="fas fa-school me-2"></i>
-Secondary
-</div>
+                <div class="level-title">
+                    <i class="fas fa-school me-2"></i>
+                    Secondary
+                </div>
 
-<div class="level-body">
+                <div class="level-body">
 
-<h5 class="text-primary">
-Junior High School
-</h5>
+                    <h5 class="text-primary">
+                        Junior High School
+                    </h5>
 
-<div class="row">
+                    <div class="row">
 
-<div class="col-md-6 mb-3">
-<label>School Name</label>
-<input type="text"
-name="school_name[Secondary_JHS]"
-class="form-control">
-</div>
+                        <div class="col-md-6 mb-3">
+                            <label>School Name</label>
+                                <input type="text"
+                                    name="school_name[Secondary_JHS]"
+                                class="form-control">
+                        </div>
 
-<div class="col-md-6 mb-3">
-<label>Basic Education / Degree / Course</label>
-<input type="text"
-name="degree[Secondary_JHS]"
-class="form-control">
-</div>
+                        <div class="col-md-6 mb-3">
+                            <label>Basic Education / Degree / Course</label>
+                                <input type="text"
+                                    name="degree[Secondary_JHS]"
+                                class="form-control">
+                        </div>
 
-<div class="col-md-3 mb-3">
-<label>Period From</label>
-<input type="date"
-name="period_from[Secondary_JHS]"
-class="form-control">
-</div>
+                        <div class="col-md-3 mb-3">
+                            <label>Period From</label>
+                                <input type="date"
+                                    name="period_from[Secondary_JHS]"
+                                class="form-control">
+                        </div>
 
-<div class="col-md-3 mb-3">
-<label>Period To</label>
-<input type="date"
-name="period_to[Secondary_JHS]"
-class="form-control">
-</div>
+                        <div class="col-md-3 mb-3">
+                            <label>Period To</label>
+                                <input type="date"
+                                    name="period_to[Secondary_JHS]"
+                                class="form-control">
+                        </div>
 
-<div class="col-md-3 mb-3">
-<label>Year Graduated</label>
-<input type="number"
-name="year_graduated[Secondary_JHS]"
-class="form-control">
-</div>
+                        <div class="col-md-3 mb-3">
+                            <label>Year Graduated</label>
+                                <input type="number"
+                                    name="year_graduated[Secondary_JHS]"
+                                class="form-control">
+                        </div>
 
-<div class="col-md-3 mb-3">
-<label>Scholarship / Honors</label>
-<input type="text"
-name="scholarship[Secondary_JHS]"
-class="form-control">
-</div>
+                        <div class="col-md-3 mb-3">
+                            <label>Scholarship / Honors</label>
+                                <input type="text"
+                                    name="scholarship[Secondary_JHS]"
+                                class="form-control">
+                        </div>
 
-</div>
-
-<hr>
+                    </div>
+
+                    <hr>
 
-<h5 class="text-primary">
-Senior High School
-</h5>
-
-<div class="row">
-
-<div class="col-md-6 mb-3">
-<label>School Name</label>
-<input type="text"
-name="school_name[Secondary_SHS]"
-class="form-control">
-</div>
-
-<div class="col-md-6 mb-3">
-<label>Track / Strand</label>
-<input type="text"
-name="degree[Secondary_SHS]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Period From</label>
-<input type="date"
-name="period_from[Secondary_SHS]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Period To</label>
-<input type="date"
-name="period_to[Secondary_SHS]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Year Graduated</label>
-<input type="number"
-name="year_graduated[Secondary_SHS]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Scholarship / Honors</label>
-<input type="text"
-name="scholarship[Secondary_SHS]"
-class="form-control">
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<?php
-        continue;
-    }
-?>
-
-<div class="level-card">
-
-<div class="level-title">
-<i class="fas fa-school me-2"></i>
-<?= $level ?>
-</div>
-
-<div class="level-body">
-
-<div class="row">
-
-<div class="col-md-6 mb-3">
-<label>School Name</label>
-<input type="text"
-name="school_name[<?= $level ?>]"
-class="form-control">
-</div>
-
-<div class="col-md-6 mb-3">
-<label>Basic Education / Degree / Course</label>
-<input type="text"
-name="degree[<?= $level ?>]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Period From</label>
-<input type="date"
-name="period_from[<?= $level ?>]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Period To</label>
-<input type="date"
-name="period_to[<?= $level ?>]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Highest Level / Units Earned</label>
-<input type="text"
-name="highest_level[<?= $level ?>]"
-class="form-control">
-</div>
-
-<div class="col-md-3 mb-3">
-<label>Year Graduated</label>
-<input type="text"
-name="year_graduated[<?= $level ?>]"
-class="form-control">
-</div>
-
-<div class="col-md-12">
-<label>Scholarship / Academic Honors</label>
-<input type="text"
-name="scholarship[<?= $level ?>]"
-class="form-control">
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<?php
-}
-?>
-<div class="text-end">
-
-<a
-href="personnel.php?id=<?= $personnel_id ?>"
-class="btn btn-secondary">
-
-Back
-
-</a>
-
-<button
-type="submit"
-name="save_education"
-class="btn btn-primary">
-
-<i class="fas fa-save"></i>
-
-Save All
-
-</button>
-
-</div>
+                    <h5 class="text-primary">
+                        Senior High School
+                    </h5>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label>School Name</label>
+                                <input type="text"
+                                    name="school_name[Secondary_SHS]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Track / Strand</label>
+                                <input type="text"
+                                    name="degree[Secondary_SHS]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Period From</label>
+                                <input type="date"
+                                    name="period_from[Secondary_SHS]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Period To</label>
+                                <input type="date"
+                                    name="period_to[Secondary_SHS]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Year Graduated</label>
+                                <input type="number"
+                                    name="year_graduated[Secondary_SHS]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Scholarship / Honors</label>
+                                <input type="text"
+                                    name="scholarship[Secondary_SHS]"
+                                class="form-control">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <?php
+                    continue;
+                }
+            ?>
+
+            <div class="level-card">
+
+                <div class="level-title">
+                    <i class="fas fa-school me-2"></i>
+                        <?= $level ?>
+                </div>
+
+                <div class="level-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label>School Name</label>
+                                <input type="text"
+                                    name="school_name[<?= $level ?>]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Basic Education / Degree / Course</label>
+                                <input type="text"
+                                    name="degree[<?= $level ?>]"
+                                        class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Period From</label>
+                                <input type="date"
+                                    name="period_from[<?= $level ?>]"
+                                        class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Period To</label>
+                                <input type="date"
+                                    name="period_to[<?= $level ?>]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Highest Level / Units Earned</label>
+                                <input type="text"
+                                    name="highest_level[<?= $level ?>]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label>Year Graduated</label>
+                                <input type="text"
+                                    name="year_graduated[<?= $level ?>]"
+                                class="form-control">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label>Scholarship / Academic Honors</label>
+                                <input type="text"
+                                    name="scholarship[<?= $level ?>]"
+                                class="form-control">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <?php
+            }
+            ?>
+            <div class="text-end">
+
+            <a
+                href="personnel.php?id=<?= $personnel_id ?>"
+                class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+            <button
+                type="submit"
+                name="save_education"
+                class="btn btn-primary">
+
+                <i class="fas fa-save"></i>
+
+                Save All
+
+            </button>
+
+        </div>
 
 </form>
 
