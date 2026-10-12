@@ -1,42 +1,64 @@
+
 <?php
+include "auth.php";
 include "config.php";
+require_once "export_data.php";
 
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=personnel_report.xls");
-
-echo "
-<table border='1'>
-<tr>
-<th>Employee ID</th>
-<th>Name</th>
-<th>Position</th>
-<th>Province</th>
-<th>Status</th>
-</tr>
-";
-
-$result = $conn->query("
-SELECT *
-FROM personnel
-");
-
-while($row = $result->fetch_assoc()){
-
-    $fullname =
-        $row['first_name'].' '.
-        $row['middle_name'].' '.
-        $row['last_name'];
-
-    echo "
-    <tr>
-        <td>{$row['employee_id']}</td>
-        <td>{$fullname}</td>
-        <td>{$row['position_title']}</td>
-        <td>{$row['province']}</td>
-        <td>{$row['employment_status']}</td>
-    </tr>
-    ";
+if (ob_get_length()) {
+    ob_clean();
 }
 
-echo "</table>";
+$filename = "JOPMIS_Personnel_" . date("Y-m-d") . ".xls";
+
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header('Content-Disposition: attachment; filename="' . $filename . '"');
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+echo "\xEF\xBB\xBF";
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 6px;
+            vertical-align: top;
+        }
+        th {
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <thead>
+        <tr>
+            <?php foreach ($exportHeaders as $label): ?>
+                <th><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></th>
+            <?php endforeach; ?>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($exportRows as $row): ?>
+            <tr>
+                <?php foreach ($exportHeaders as $column => $label): ?>
+                    <td><?= htmlspecialchars((string)($row[$column] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                <?php endforeach; ?>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+</body>
+</html>
+<?php
+exit;
 ?>
