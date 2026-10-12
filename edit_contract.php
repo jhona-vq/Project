@@ -989,14 +989,6 @@ body{
                 Terminated
             </option>
 
-
-            <option
-                value="Expired"
-                <?= ($row['status'] === 'Expired') ? 'selected' : ''; ?>
-            >
-                Expired
-            </option>
-
         </select>
 
     </div>
