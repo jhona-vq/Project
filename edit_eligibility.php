@@ -10,22 +10,6 @@ allowRoles([
 ]);
 
 
-/* =========================================================
-   GET ELIGIBILITY ID
-========================================================= */
-
-/*
- * Normally ang Edit button ay dapat:
- *
- * edit_eligibility.php?id=7
- *
- * where 7 = personnel_eligibility.id
- *
- * We also support:
- *
- * edit_eligibility.php?eligibility_id=7
- */
-
 $eligibility_id = intval(
     $_GET['eligibility_id']
     ?? $_GET['id']
@@ -33,200 +17,138 @@ $eligibility_id = intval(
     ?? 0
 );
 
-
-if ($eligibility_id <= 0) {
-    die("Invalid eligibility ID.");
-}
-
-
-/* =========================================================
-   LOAD EXISTING ELIGIBILITY
-========================================================= */
-
-$stmt = $conn->prepare("
-    SELECT *
-    FROM personnel_eligibility
-    WHERE id = ?
-    LIMIT 1
-");
-
-$stmt->bind_param(
-    "i",
-    $eligibility_id
-);
-
-$stmt->execute();
-
-$result = $stmt->get_result();
-
-
-if ($result->num_rows === 0) {
-
-    die("Eligibility record not found.");
-
-}
-
-
-$row = $result->fetch_assoc();
-
-
-/* =========================================================
-   GET PERSONNEL ID FROM ELIGIBILITY RECORD
-========================================================= */
-
 $personnel_id = intval(
-    $row['personnel_id'] ?? 0
+    $_GET['personnel_id'] ?? $_POST['personnel_id'] ?? 0
 );
 
+$error = "";
+
+/*GET PERSONNEL ID IF OPENED USING AN ELIGIBILITY ID */
+
+if (personnel_id <= 0 && $eligibility_id > 0) {
+    $stmt = $conn ->prepare("
+        SELECT personnel_id
+        FROM personnel_eligibility
+        WHERE id = ?
+        LIMIT 1
+    ");
+    $stmt->bind_param("i", $eligibility_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        die("Eligibility record not found.");
+    }
+
+    $record = $result->fetch_assoc();
+    $personnel_id = intval($record['personnel_id']);
+    $stmt->close();
+}
 
 if ($personnel_id <= 0) {
-
     die("Invalid personnel ID.");
-
 }
 
+/*UPDATE ONLY THE SELECTED ELIGIBILITY RECORD */
 
-/* =========================================================
-   LOAD PERSONNEL INFORMATION
-========================================================= */
+if (ISSET($_POST['update_eligibility'])) {
+    $eligibility_id = intval($_POST['eligibility_id'] ?? 0);
 
-$stmtPersonnel = $conn->prepare("
+     $eligibility = trim($_POST['eligibility'] ?? '');
+     $rating = trim($_POST['rating'] ?? '');
+     $exam_date = trim($_POST['exam_date'] ?? '');
+     $exam_place = trim($_POST['exam_place'] ?? '');
+     $license_number = trim($_POST['license_number'] ?? '');
+
+     $valid_option = $_POST['valid_option'] ?? '';
+     $valid_until_date = trim($_POST['valid_until_date'] ?? '');
+
+    if ($eligibility_id <= 0 || $eligibility === '') {
+        $error = "Please enter a valid eligibility record.";
+    } else {
+        if ($valid_option === 'no_expiration') {
+            $valid_until = 'No Expiration';
+        } elseif ($valid_option === 'as_applicable') {
+            $valid_until = 'As Applicable') {
+        } elseif ($valid_option === 'specific_date' && $valid_until_date !== '') {
+            $valid_until = $valid_until_date;
+        } elseif ($valid_option === '') {
+            $valid_until = '';
+        } else {
+            $valid_until = '';
+            $error = "Please select a valid expiration date.";
+        }
+
+        if )$error === '') {
+            $stmtUpdate = $conn->prepare("
+                UPDATE personnel_eligibility
+                SET eligibility = ?,
+                    rating = ?,
+                    exam_date = ?,
+                    exam_place = ?,
+                    license_number = ?
+                    valid_until = ?
+                WHERE id = ?
+                 AND personnel_id = ?
+            ");
+
+            $stmtUpdate->bind_param(
+                "ssssssii",
+                $eligibility,
+                $rating,
+                $exam_date,
+                $exam_place,
+                $license_number,
+                $valid_until,
+                $eligibility_id,
+                $personnel_id
+            );
+
+            if ($stmtUpdate->execute()) {
+                $stmtUpdate->close();
+
+                header(
+                    "Location : edit_eligibility.php?personnel_id="
+                    . $personnel_id . "&updated=1"
+                );
+                exit;
+            } else {
+                $error = "Failed to update eligibility .";
+                $stmtUpdate->close();
+            }
+        }
+    }
+}
+
+/* LOAD PERSONNEL INFORMATION */
+$stmtPersonnel = 4conn->prepare("
     SELECT *
     FROM personnel
     WHERE id = ?
     LIMIT 1
 ");
 
-$stmtPersonnel->bind_param(
-    "i",
-    $personnel_id
-);
-
+$stmtPersonnel->bind_param("i", $personnel_id);
 $stmtPersonnel->execute();
-
 $personnelResult = $stmtPersonnel->get_result();
 
-
 if ($personnelResult->num_rows === 0) {
-
     die("Personnel record not found.");
-
 }
-
 
 $personnel = $personnelResult->fetch_assoc();
+$stmtPersonnel->close();
 
-
-/* =========================================================
-   UPDATE ELIGIBILITY
-========================================================= */
-
-if (isset($_POST['update_eligibility'])) {
-
-    $eligibility = trim(
-        $_POST['eligibility'] ?? ''
-    );
-
-    $rating = trim(
-        $_POST['rating'] ?? ''
-    );
-
-    $exam_date = trim(
-        $_POST['exam_date'] ?? ''
-    );
-
-    $exam_place = trim(
-        $_POST['exam_place'] ?? ''
-    );
-
-    $license_number = trim(
-        $_POST['license_number'] ?? ''
-    );
-
-    $valid_option = $_POST['valid_until_option'] ?? '';
-
-$valid_until_date = trim(
-    $_POST['valid_until_date'] ?? ''
-);
-
-
-/* =========================================================
-   DETERMINE VALID UNTIL VALUE
-========================================================= */
-
-if ($valid_option === 'no_expiration') {
-
-    $valid_until = 'No Expiration';
-
-} elseif ($valid_option === 'as_applicable') {
-
-    $valid_until = 'As Applicable';
-
-} elseif ($valid_option === 'specific_date') {
-
-    $valid_until = $valid_until_date;
-
-} else {
-
-    $valid_until = '';
-
-}
-
-
-    /* =========================================
-       UPDATE DATABASE
-    ========================================= */
-
-    $stmtUpdate = $conn->prepare("
-        UPDATE personnel_eligibility
-        SET
-            eligibility = ?,
-            rating = ?,
-            exam_date = ?,
-            exam_place = ?,
-            license_number = ?,
-            valid_until = ?
-        WHERE id = ?
-        AND personnel_id = ?
-    ");
-
-
-    $stmtUpdate->bind_param(
-        "ssssssii",
-        $eligibility,
-        $rating,
-        $exam_date,
-        $exam_place,
-        $license_number,
-        $valid_until,
-        $eligibility_id,
-        $personnel_id
-    );
-
-
-    if ($stmtUpdate->execute()) {
-
-        echo "
-        <script>
-
-            alert('Eligibility Updated Successfully.');
-
-            window.location.href =
-                'edit_eligibility.php?id=" . $personnel_id . "';
-
-        </script>
-        ";
-
-        exit;
-
-    } else {
-
-        $error = "Failed to update eligibility.";
-
-    }
-
-}
-
+/* LOAD ALL ELIGIBILITY RECORDS FOR THIS PERSONNEL */
+$stmtEligibility = $conn->prepare("
+    SELECT *
+    FROM personnel_eligibility
+    WHERE personnel_id = ?
+    ORDER BY id = ?
+");
+$stmteligibility->bind_param("i", $personnel_id);
+$stmtEligibility->execute();
+$eligibilityRecords = $stmtEligibility->get_result();
 ?>
 
 <!DOCTYPE html>
